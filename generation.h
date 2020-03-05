@@ -5,26 +5,39 @@
 #ifndef INF432_GENERATION_H
 #define INF432_GENERATION_H
 
-
 #include <stdbool.h>
 #define TAILLE 7
 
-typedef enum { INCONNU, LIBRE, MURV, MUR0, MUR1, MUR2, MUR3, MUR4, LAMPE, VIDE } Case;
+typedef enum {
+  INCONNU,
+  LIBRE,
+  MURV,
+  MUR0,
+  MUR1,
+  MUR2,
+  MUR3,
+  MUR4,
+  LAMPE,
+  VIDE
+} Case;
 
-typedef struct{
-    Case tab[TAILLE * TAILLE];
+typedef struct {
+  Case *tab;
+  int taille;
 } Grille;
 
-int nbCasesLibresAdj(Grille *grille,int i);
+int nbCasesLibresAdj(Grille *grille, int i);
 
-Case placerMur(Grille *grille,int i);
+Case placerMur(Grille *grille, int i);
 
-void placerLampe(Case actuel,int i, Grille *grille);
+void placerLampe(Case actuel, int i, Grille *grille);
 
 Grille *genere_grille(int pourcentMur);
 
-bool lampe_possible(int i,Grille *grille);
+bool lampe_possible(int i, Grille *grille);
 
 void afficher_grille(Grille *grille);
 
-#endif //INF432_GENERATION_H
+Grille *readGrid(char *fileName);
+
+#endif // INF432_GENERATION_H

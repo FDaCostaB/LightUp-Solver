@@ -1,0 +1,3 @@
+/Users/mano/Documents/S4/INF432/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/mano/Documents/S4/INF432/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/mano/Documents/S4/INF432/cmake-build-debug/CMakeFiles/INF432.dir

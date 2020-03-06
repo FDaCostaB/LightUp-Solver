@@ -20,7 +20,7 @@ typedef enum {
   VIDE
 } Case;
 
-typedef struct {
+typedef struct Grid {
   Case *tab;
   int taille;
 } Grille;
@@ -31,7 +31,7 @@ Case placerMur(Grille *grille, int i);
 
 void placerLampe(Case actuel, int i, Grille *grille);
 
-Grille *genere_grille(int pourcentMur);
+Grille *genere_grille(int pourcentMur, int taille);
 
 bool lampe_possible(int i, Grille *grille);
 

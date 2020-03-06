@@ -6,3 +6,6 @@ generation.o : generation.c generation.h
 
 main.o : main.c
 	clang -c -Wall main.c
+
+clean:
+	rm -r *.o main

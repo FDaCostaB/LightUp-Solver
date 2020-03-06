@@ -108,8 +108,8 @@ $RECYCLE.BIN/
 *.lnk
 
 # Jetbrains
-.idea/
 cmake-build-debug/
+.idea
 
 # Executable
 main

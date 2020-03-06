@@ -6,7 +6,6 @@
 #define INF432_GENERATION_H
 
 #include <stdbool.h>
-#define TAILLE 7
 
 typedef enum {
   INCONNU,

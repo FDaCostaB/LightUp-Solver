@@ -9,20 +9,21 @@
 
 int nbCasesLibresAdj(Grille *grille, int i) {
   int n = 0;
-  if (i - TAILLE >= 0 && (grille->tab[i - TAILLE] == LIBRE ||
-                          grille->tab[i - TAILLE] == INCONNU)) {
+  if (i - grille->taille >= 0 && (grille->tab[i - grille->taille] == LIBRE ||
+                                  grille->tab[i - grille->taille] == INCONNU)) {
     n++;
   }
-  if ((i - 1) % TAILLE < (i % TAILLE) &&
+  if ((i - 1) % grille->taille < (i % grille->taille) &&
       (grille->tab[i - 1] == LIBRE || grille->tab[i - 1] == INCONNU)) {
     n++;
   }
-  if ((i + 1) % TAILLE > (i % TAILLE) &&
+  if ((i + 1) % grille->taille > (i % grille->taille) &&
       (grille->tab[i + 1] == LIBRE || grille->tab[i + 1] == INCONNU)) {
     n++;
   }
-  if (i + TAILLE < TAILLE * TAILLE && (grille->tab[i + TAILLE] == LIBRE ||
-                                       grille->tab[i + TAILLE] == INCONNU)) {
+  if (i + grille->taille < grille->taille * grille->taille &&
+      (grille->tab[i + grille->taille] == LIBRE ||
+       grille->tab[i + grille->taille] == INCONNU)) {
     n++;
   }
   return n;
@@ -30,16 +31,19 @@ int nbCasesLibresAdj(Grille *grille, int i) {
 
 int nbLampesPossibles(Grille *grille, int i) {
   int n = 0;
-  if (i - TAILLE >= 0 && lampe_possible(i - TAILLE, grille)) {
+  if (i - grille->taille >= 0 && lampe_possible(i - grille->taille, grille)) {
     n++;
   }
-  if ((i - 1) % TAILLE < (i % TAILLE) && lampe_possible(i - 1, grille)) {
+  if ((i - 1) % grille->taille < (i % grille->taille) &&
+      lampe_possible(i - 1, grille)) {
     n++;
   }
-  if ((i + 1) % TAILLE > (i % TAILLE) && lampe_possible(i + 1, grille)) {
+  if ((i + 1) % grille->taille > (i % grille->taille) &&
+      lampe_possible(i + 1, grille)) {
     n++;
   }
-  if (i + TAILLE < TAILLE * TAILLE && lampe_possible(i + TAILLE, grille)) {
+  if (i + grille->taille < grille->taille * grille->taille &&
+      lampe_possible(i + grille->taille, grille)) {
     n++;
   }
   return n;
@@ -47,26 +51,27 @@ int nbLampesPossibles(Grille *grille, int i) {
 
 int nbLampesPossiblesEtLibres(Grille *grille, int i) {
   int n = 0;
-  if (i - TAILLE >= 0 &&
-      (grille->tab[i - TAILLE] == LIBRE ||
-       grille->tab[i - TAILLE] == INCONNU) &&
-      lampe_possible(i - TAILLE, grille)) {
+  if (i - grille->taille >= 0 &&
+      (grille->tab[i - grille->taille] == LIBRE ||
+       grille->tab[i - grille->taille] == INCONNU) &&
+      lampe_possible(i - grille->taille, grille)) {
     n++;
   }
-  if ((i - 1) % TAILLE < (i % TAILLE) && (i - 1) > 0 &&
+  if ((i - 1) % grille->taille < (i % grille->taille) && (i - 1) > 0 &&
       (grille->tab[i - 1] == LIBRE || grille->tab[i - 1] == INCONNU) &&
       lampe_possible(i - 1, grille)) {
     n++;
   }
-  if ((i + 1) % TAILLE > (i % TAILLE) && (i + 1) < TAILLE * TAILLE &&
+  if ((i + 1) % grille->taille > (i % grille->taille) &&
+      (i + 1) < grille->taille * grille->taille &&
       (grille->tab[i + 1] == LIBRE || grille->tab[i + 1] == INCONNU) &&
       lampe_possible(i + 1, grille)) {
     n++;
   }
-  if (i + TAILLE < TAILLE * TAILLE &&
-      (grille->tab[i + TAILLE] == LIBRE ||
-       grille->tab[i + TAILLE] == INCONNU) &&
-      lampe_possible(i + TAILLE, grille)) {
+  if (i + grille->taille < grille->taille * grille->taille &&
+      (grille->tab[i + grille->taille] == LIBRE ||
+       grille->tab[i + grille->taille] == INCONNU) &&
+      lampe_possible(i + grille->taille, grille)) {
     n++;
   }
   return n;
@@ -161,7 +166,7 @@ Case placerMur(Grille *grille, int i) {
   return grille->tab[i];
 }
 
-void ajouterLampe(Grille *grille, int casePossible[TAILLE], int longueur,
+void ajouterLampe(Grille *grille, int casePossible[], int longueur,
                   int aPlacer) {
   if (aPlacer > longueur) {
     printf("ERREUR GRILLE IMPOSSIBLE\n");
@@ -176,8 +181,8 @@ void ajouterLampe(Grille *grille, int casePossible[TAILLE], int longueur,
         x = (x + 1) % longueur;
       }
       grille->tab[casePossible[x]] = LAMPE;
-      printf("( %d , %d ) -  ", casePossible[x] % TAILLE,
-             casePossible[x] / TAILLE);
+      printf("( %d , %d ) -  ", casePossible[x] % grille->taille,
+             casePossible[x] / grille->taille);
     }
     for (int j = 0; j < longueur; j++) {
       if (grille->tab[casePossible[j]] != LAMPE)
@@ -187,32 +192,33 @@ void ajouterLampe(Grille *grille, int casePossible[TAILLE], int longueur,
 }
 
 void placerLampe(Case actuel, int i, Grille *grille) {
-  int casePossible[TAILLE];
+  int casePossible[grille->taille];
   int longueur = 0;
 
   if (actuel == MURV)
     return;
   if (actuel == MUR0) {
-    if (i - TAILLE >= 0)
-      grille->tab[i - TAILLE] = VIDE;
-    if ((i - 1) % TAILLE < (i % TAILLE))
+    if (i - grille->taille >= 0)
+      grille->tab[i - grille->taille] = VIDE;
+    if ((i - 1) % grille->taille < (i % grille->taille))
       grille->tab[i - 1] = VIDE;
-    if ((i + 1) % TAILLE > (i % TAILLE))
+    if ((i + 1) % grille->taille > (i % grille->taille))
       grille->tab[i + 1] = VIDE;
-    if (i + TAILLE < TAILLE * TAILLE)
-      grille->tab[i + TAILLE] = VIDE;
+    if (i + grille->taille < grille->taille * grille->taille)
+      grille->tab[i + grille->taille] = VIDE;
   } else {
-    if (i - TAILLE >= 0) {
-      if (lampe_possible(i - TAILLE, grille) && i - TAILLE >= 0) {
-        casePossible[longueur] = i - TAILLE;
+    if (i - grille->taille >= 0) {
+      if (lampe_possible(i - grille->taille, grille) &&
+          i - grille->taille >= 0) {
+        casePossible[longueur] = i - grille->taille;
         longueur++;
       } else {
-        if (grille->tab[i - TAILLE] == LIBRE ||
-            grille->tab[i - TAILLE] == INCONNU)
-          grille->tab[i - TAILLE] = VIDE;
+        if (grille->tab[i - grille->taille] == LIBRE ||
+            grille->tab[i - grille->taille] == INCONNU)
+          grille->tab[i - grille->taille] = VIDE;
       }
     }
-    if ((i - 1) % TAILLE < (i % TAILLE)) {
+    if ((i - 1) % grille->taille < (i % grille->taille)) {
       if (lampe_possible(i - 1, grille) && i - 1 >= 0) {
         casePossible[longueur] = i - 1;
         longueur++;
@@ -221,8 +227,9 @@ void placerLampe(Case actuel, int i, Grille *grille) {
           grille->tab[i - 1] = VIDE;
       }
     }
-    if ((i + 1) % TAILLE > (i % TAILLE)) {
-      if (lampe_possible(i + 1, grille) && i + 1 < TAILLE * TAILLE) {
+    if ((i + 1) % grille->taille > (i % grille->taille)) {
+      if (lampe_possible(i + 1, grille) &&
+          i + 1 < grille->taille * grille->taille) {
         casePossible[longueur] = i + 1;
         longueur++;
       } else {
@@ -231,14 +238,15 @@ void placerLampe(Case actuel, int i, Grille *grille) {
       }
     }
 
-    if (i + TAILLE < TAILLE * TAILLE) {
-      if (lampe_possible(i + TAILLE, grille) && i + TAILLE < TAILLE * TAILLE) {
-        casePossible[longueur] = i + TAILLE;
+    if (i + grille->taille < grille->taille * grille->taille) {
+      if (lampe_possible(i + grille->taille, grille) &&
+          i + grille->taille < grille->taille * grille->taille) {
+        casePossible[longueur] = i + grille->taille;
         longueur++;
       } else {
-        if (grille->tab[i + TAILLE] == LIBRE ||
-            grille->tab[i + TAILLE] == INCONNU)
-          grille->tab[i + TAILLE] = VIDE;
+        if (grille->tab[i + grille->taille] == LIBRE ||
+            grille->tab[i + grille->taille] == INCONNU)
+          grille->tab[i + grille->taille] = VIDE;
       }
     }
     if (actuel == MUR1)
@@ -252,30 +260,37 @@ void placerLampe(Case actuel, int i, Grille *grille) {
   }
   switch (grille->tab[i]) {
   case MURV:
-    printf("MURV en %d , %d. Case possible : ", i % TAILLE, i / TAILLE);
+    printf("MURV en %d , %d. Case possible : ", i % grille->taille,
+           i / grille->taille);
     break;
   case MUR0:
-    printf("MUR0 en %d , %d. Case possible : ", i % TAILLE, i / TAILLE);
+    printf("MUR0 en %d , %d. Case possible : ", i % grille->taille,
+           i / grille->taille);
     break;
   case MUR1:
-    printf("MUR1 en %d , %d. Case possible : ", i % TAILLE, i / TAILLE);
+    printf("MUR1 en %d , %d. Case possible : ", i % grille->taille,
+           i / grille->taille);
     break;
   case MUR2:
-    printf("MUR2 en %d , %d. Case possible : ", i % TAILLE, i / TAILLE);
+    printf("MUR2 en %d , %d. Case possible : ", i % grille->taille,
+           i / grille->taille);
     break;
   case MUR3:
-    printf("MUR3 en %d , %d. Case possible : ", i % TAILLE, i / TAILLE);
+    printf("MUR3 en %d , %d. Case possible : ", i % grille->taille,
+           i / grille->taille);
     break;
   case MUR4:
-    printf("MUR4 en %d , %d. Case possible : ", i % TAILLE, i / TAILLE);
+    printf("MUR4 en %d , %d. Case possible : ", i % grille->taille,
+           i / grille->taille);
     break;
   }
   for (int i = 0; i < longueur; i++) {
-    printf(" ( %d , %d ) ", casePossible[i] % TAILLE, casePossible[i] / TAILLE);
+    printf(" ( %d , %d ) ", casePossible[i] % grille->taille,
+           casePossible[i] / grille->taille);
   }
   printf("\n");
   /*longueur = 0;
-  for(int j = TAILLE * ligne;i<j; j++){
+  for(int j = grille->taille * ligne;i<j; j++){
       if(lampe_possible(j,grille)){
           casePossible[longueur] = j;
           longueur ++;
@@ -300,9 +315,9 @@ Grille *genere_grille(int pourcentMur) {
   int i = 0;
   Case actuel;
 
-  while (i < TAILLE * TAILLE) {
+  while (i < res->taille * res->taille) {
     x = rand() % (100);
-    while (i < TAILLE * TAILLE && res->tab[i] != INCONNU) {
+    while (i < res->taille * res->taille && res->tab[i] != INCONNU) {
       i++;
     }
     if (x < pourcentMur) {
@@ -317,64 +332,68 @@ Grille *genere_grille(int pourcentMur) {
 }
 
 bool lampe_possible(int i, Grille *grille) {
-  int ligne = i / TAILLE;
-  int colonne = i % TAILLE;
+  int ligne = i / grille->taille;
+  int colonne = i % grille->taille;
   bool lignePossible = true;
   bool colonnePossible = true;
 
   if (grille->tab[i] != LIBRE && grille->tab[i] != INCONNU)
     return false;
 
-  for (int j = 0; j < TAILLE; j++) {
-    if (grille->tab[ligne * TAILLE + j] == LAMPE && ligne * TAILLE + j <= i)
+  for (int j = 0; j < grille->taille; j++) {
+    if (grille->tab[ligne * grille->taille + j] == LAMPE &&
+        ligne * grille->taille + j <= i)
       lignePossible = false;
-    if ((grille->tab[ligne * TAILLE + j] == MURV ||
-         grille->tab[ligne * TAILLE + j] == MUR0 ||
-         grille->tab[ligne * TAILLE + j] == MUR1 ||
-         grille->tab[ligne * TAILLE + j] == MUR2 ||
-         grille->tab[ligne * TAILLE + j] == MUR3 ||
-         grille->tab[ligne * TAILLE + j] == MUR4) &&
-        ligne * TAILLE + j < i)
+    if ((grille->tab[ligne * grille->taille + j] == MURV ||
+         grille->tab[ligne * grille->taille + j] == MUR0 ||
+         grille->tab[ligne * grille->taille + j] == MUR1 ||
+         grille->tab[ligne * grille->taille + j] == MUR2 ||
+         grille->tab[ligne * grille->taille + j] == MUR3 ||
+         grille->tab[ligne * grille->taille + j] == MUR4) &&
+        ligne * grille->taille + j < i)
       lignePossible = true;
-    if (grille->tab[ligne * TAILLE + j] == LAMPE && ligne * TAILLE + j > i)
+    if (grille->tab[ligne * grille->taille + j] == LAMPE &&
+        ligne * grille->taille + j > i)
       return false;
-    if ((grille->tab[ligne * TAILLE + j] == MURV ||
-         grille->tab[ligne * TAILLE + j] == MUR0 ||
-         grille->tab[ligne * TAILLE + j] == MUR1 ||
-         grille->tab[ligne * TAILLE + j] == MUR2 ||
-         grille->tab[ligne * TAILLE + j] == MUR3 ||
-         grille->tab[ligne * TAILLE + j] == MUR4) &&
-        ligne * TAILLE + j > i)
+    if ((grille->tab[ligne * grille->taille + j] == MURV ||
+         grille->tab[ligne * grille->taille + j] == MUR0 ||
+         grille->tab[ligne * grille->taille + j] == MUR1 ||
+         grille->tab[ligne * grille->taille + j] == MUR2 ||
+         grille->tab[ligne * grille->taille + j] == MUR3 ||
+         grille->tab[ligne * grille->taille + j] == MUR4) &&
+        ligne * grille->taille + j > i)
       break;
 
-    if (grille->tab[colonne + j * TAILLE] == LAMPE && colonne + j * TAILLE < i)
+    if (grille->tab[colonne + j * grille->taille] == LAMPE &&
+        colonne + j * grille->taille < i)
       colonnePossible = false;
-    if ((grille->tab[colonne + j * TAILLE] == MURV ||
-         grille->tab[colonne + j * TAILLE] == MUR0 ||
-         grille->tab[colonne + j * TAILLE] == MUR1 ||
-         grille->tab[colonne + j * TAILLE] == MUR2 ||
-         grille->tab[colonne + j * TAILLE] == MUR3 ||
-         grille->tab[colonne + j * TAILLE] == MUR4) &&
-        colonne + j * TAILLE < i)
+    if ((grille->tab[colonne + j * grille->taille] == MURV ||
+         grille->tab[colonne + j * grille->taille] == MUR0 ||
+         grille->tab[colonne + j * grille->taille] == MUR1 ||
+         grille->tab[colonne + j * grille->taille] == MUR2 ||
+         grille->tab[colonne + j * grille->taille] == MUR3 ||
+         grille->tab[colonne + j * grille->taille] == MUR4) &&
+        colonne + j * grille->taille < i)
       colonnePossible = true;
-    if (grille->tab[colonne + j * TAILLE] == LAMPE && colonne + j * TAILLE > i)
+    if (grille->tab[colonne + j * grille->taille] == LAMPE &&
+        colonne + j * grille->taille > i)
       return false;
-    if ((grille->tab[colonne + j * TAILLE] == MURV ||
-         grille->tab[colonne + j * TAILLE] == MUR0 ||
-         grille->tab[colonne + j * TAILLE] == MUR1 ||
-         grille->tab[colonne + j * TAILLE] == MUR2 ||
-         grille->tab[colonne + j * TAILLE] == MUR3 ||
-         grille->tab[colonne + j * TAILLE] == MUR4) &&
-        colonne + j * TAILLE > i)
+    if ((grille->tab[colonne + j * grille->taille] == MURV ||
+         grille->tab[colonne + j * grille->taille] == MUR0 ||
+         grille->tab[colonne + j * grille->taille] == MUR1 ||
+         grille->tab[colonne + j * grille->taille] == MUR2 ||
+         grille->tab[colonne + j * grille->taille] == MUR3 ||
+         grille->tab[colonne + j * grille->taille] == MUR4) &&
+        colonne + j * grille->taille > i)
       break;
   }
   return (colonnePossible && lignePossible);
 }
 
 void afficher_grille(Grille *grille) {
-  for (int i = 0; i < TAILLE; i++) {
-    for (int j = 0; j < TAILLE; j++) {
-      switch (grille->tab[j + TAILLE * i]) {
+  for (int i = 0; i < grille->taille; i++) {
+    for (int j = 0; j < grille->taille; j++) {
+      switch (grille->tab[j + grille->taille * i]) {
       case MURV:
         printf("#");
         break;
@@ -414,13 +433,12 @@ void afficher_grille(Grille *grille) {
 Grille *readGrid(char *fileName) {
   FILE *f;
   int i, j;
-  char *s = NULL;
   char *g = NULL;
   size_t size = sizeof(int);
   f = fopen(fileName, "r");
 
-  getline(&s, &size, f);
-  int sizeOfGrid = atoi(s);
+  getline(&g, &size, f);
+  int sizeOfGrid = atoi(g);
 
   Grille *grid = newGrid(sizeOfGrid);
 
@@ -456,20 +474,10 @@ Grille *readGrid(char *fileName) {
         grid->tab[j + sizeOfGrid * i] = LAMPE;
         break;
       default:
-        printf("j:::%d:::%d:::%c\n", j, i, g[j]);
         grid->tab[j + sizeOfGrid * i] = INCONNU;
         break;
       }
-      printf("%c", g[j]);
     }
   }
-
-  for (i = 0; i < sizeOfGrid; ++i) {
-    for (j = 0; j < sizeOfGrid; ++j) {
-      printf("%d", grid->tab[j + sizeOfGrid * i]);
-    }
-  }
-  printf("\n\n");
-
   return grid;
 }

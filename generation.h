@@ -6,37 +6,23 @@
 #define INF432_GENERATION_H
 
 #include <stdbool.h>
+#include "grid.h"
 
-typedef enum {
-  INCONNU,
-  LIBRE,
-  MURV,
-  MUR0,
-  MUR1,
-  MUR2,
-  MUR3,
-  MUR4,
-  LAMPE,
-  VIDE
-} Case;
 
-typedef struct Grid {
-  Case *tab;
-  int taille;
-} Grille;
+int nbCasesLibresAdj(Grid *grille, int i);
 
-int nbCasesLibresAdj(Grille *grille, int i);
+Box placerMur(Grid *grille, int i);
 
-Case placerMur(Grille *grille, int i);
+void placerLampe(Box actuel, int i, Grid *grille);
 
-void placerLampe(Case actuel, int i, Grille *grille);
+Grid *genere_grille(int pourcentMur, int taille);
 
-Grille *genere_grille(int pourcentMur, int taille);
+bool lampe_possible(int i, Grid *grille);
 
-bool lampe_possible(int i, Grille *grille);
+void afficher_grille(Grid *grille);
 
-void afficher_grille(Grille *grille);
+Grid *readGrid(char *fileName);
 
-Grille *readGrid(char *fileName);
+bool isWall(Grid *grille, int index);
 
 #endif // INF432_GENERATION_H

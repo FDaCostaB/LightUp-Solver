@@ -30,8 +30,7 @@ void ajoute_queue(SequencePoint *S, point p) {
     return;
 }
 
-void afficher (SequencePoint* seq)
-{
+void afficher (SequencePoint* seq){
     CellulePoint *curr;
     if(seq==NULL) return;
     curr = seq->tete;
@@ -76,16 +75,16 @@ void detruireSequencePoint(SequencePoint* seq){
     free(seq);
 }
 
-SequencePoint* enumSubRow(Grille* grille, point p){
+SequencePoint* enumSubRow(Grid* grid, point p){
     SequencePoint *res=nouvelleSequencePoint();
     point compt;
     bool stopAbove = false, stopBellow = false;
-    if (p.x >= grille->taille || p.y >= grille->taille || p.x < 0 || p.y < 0) return res;
-    for(int j = 0;j<taille || (stopAbove && stopBellow);j++){
-        if(isWall(grille, p.x + (p.y-j) * grille->taille){
+    if (p.x >= grid->taille || p.y >= grid->taille || p.x < 0 || p.y < 0) return res;
+    for(int j = 0;j<grid->taille || (stopAbove && stopBellow);j++){
+        if(isWall(grid, p.x + (p.y-j) * grid->taille)){
             stopAbove = true;
         }
-        if(isWall(grille, p.x + (p.y+j) * grille->taille){
+        if(isWall(grid, p.x + (p.y+j) * grid->taille)){
             stopBellow = true;
         }
         if(!stopAbove){
@@ -100,17 +99,17 @@ SequencePoint* enumSubRow(Grille* grille, point p){
     return  res;
 }
 
-SequencePoint* enumSubLine(Grille* grille, point p) {
+SequencePoint* enumSubLine(Grid* grid, point p) {
     SequencePoint *res=nouvelleSequencePoint();
     point compt;
     bool stopLeft = false,stopRight = false;
 
-    if (p.x >= grille->taille || p.y >= grille->taille || p.x < 0 || p.y < 0) return res;
-    for(int j = 0; j<taille || (stopLeft && stopRight); j++){
-        if(isWall(grille, (p.x-j) + p.y * grille->taille){
+    if (p.x >= grid->taille || p.y >= grid->taille || p.x < 0 || p.y < 0) return res;
+    for(int j = 0; j<grid->taille || (stopLeft && stopRight); j++){
+        if(isWall(grid, (p.x-j) + p.y * grid->taille)){
             stopLeft = true;
         }
-        if(isWall(grille, (p.x+j) + p.y * grille->taille){
+        if(isWall(grid, (p.x+j) + p.y * grid->taille)){
             stopRight = true;
         }
         if(!stopLeft){

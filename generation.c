@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int nbCasesLibresAdj(Grille *grille, int i) {
+int nbCasesLibresAdj(Grid *grille, int i) {
   int n = 0;
   if (i - grille->taille >= 0 && (grille->tab[i - grille->taille] == LIBRE ||
                                   grille->tab[i - grille->taille] == INCONNU)) {
@@ -29,7 +29,7 @@ int nbCasesLibresAdj(Grille *grille, int i) {
   return n;
 }
 
-int nbLampesAdj(Grille *grille, int i) {
+int nbLampesAdj(Grid *grille, int i) {
     int n = 0;
     if (i - grille->taille >= 0 && (grille->tab[i - grille->taille] == LAMPE) ) {
         n++;
@@ -46,7 +46,7 @@ int nbLampesAdj(Grille *grille, int i) {
     return n;
 }
 
-int nbLampesPossibles(Grille *grille, int i) {
+int nbLampesPossibles(Grid *grille, int i) {
   int n = 0;
   if (i - grille->taille >= 0 && lampe_possible(i - grille->taille, grille)) {
     n++;
@@ -66,7 +66,7 @@ int nbLampesPossibles(Grille *grille, int i) {
   return n;
 }
 
-int nbLampesPossiblesEtLibres(Grille *grille, int i) {
+int nbLampesPossiblesEtLibres(Grid *grille, int i) {
   int n = 0;
   if (i - grille->taille >= 0 &&
       (grille->tab[i - grille->taille] == LIBRE ||
@@ -95,12 +95,12 @@ int nbLampesPossiblesEtLibres(Grille *grille, int i) {
 }
 
 //Out of the grid we consider that any Case is a wall
-bool isWall(Grille *grille,int index){
+bool isWall(Grid *grille,int i){
     return i < 0 || i >= grille->taille || grille->tab[ i ] == MURV || grille->tab[ i ] == MUR0 ||
     grille->tab[ i ] == MUR1 || grille->tab[ i ] == MUR2 || grille->tab[ i ] == MUR3 || grille->tab[ i ] == MUR4;
 }
 
-bool lampe_possible(int i, Grille *grille) {
+bool lampe_possible(int i, Grid *grille) {
     int y = i / grille->taille;
     int x = i % grille->taille;
     bool lignePossible = true;
@@ -183,7 +183,7 @@ bool lampe_possible(int i, Grille *grille) {
     return (colonnePossible && lignePossible);
 }
 
-Case placerMur(Grille *grille, int i) {
+Box placerMur(Grid *grille, int i) {
   int chiffreMur = rand();
   int estVide = rand() % 5;
   if(estVide < 1 || nbLampesPossiblesEtLibres(grille, i) == 0) {
@@ -218,7 +218,7 @@ Case placerMur(Grille *grille, int i) {
     return grille->tab[i];
 }
 
-void ajouterLampe(Grille *grille, int casePossible[], int longueur, int aPlacer) {
+void ajouterLampe(Grid *grille, int casePossible[], int longueur, int aPlacer) {
   if (aPlacer > longueur) {
     printf("ERREUR GRILLE IMPOSSIBLE\n");
     exit(2);
@@ -242,7 +242,7 @@ void ajouterLampe(Grille *grille, int casePossible[], int longueur, int aPlacer)
   }
 }
 
-void placerLampe(Case actuel, int i, Grille *grille) {
+void placerLampe(Box actuel, int i, Grid *grille) {
   int casePossible[5];
   int longueur = 0;
 
@@ -346,9 +346,9 @@ void placerLampe(Case actuel, int i, Grille *grille) {
 /////TODO COMPLETE LIGNE
 }
 
-Grille *newGrid(int size) {
-  Grille *g = (Grille *)malloc(sizeof(Grille));
-  Case *tab = (Case *)malloc(sizeof(Case) * size * size);
+Grid *newGrid(int size) {
+  Grid *g = (Grid *)malloc(sizeof(Grid));
+  Box *tab = (Box *)malloc(sizeof(Box) * size * size);
   g->tab = tab;
   g->taille = size;
   for(int i =0; i<size*size;i++){
@@ -357,11 +357,11 @@ Grille *newGrid(int size) {
   return g;
 }
 
-Grille *genere_grille(int pourcentMur, int taille) {
+Grid *genere_grille(int pourcentMur, int taille) {
   int x = 0;
-  Grille *res = newGrid(taille);
+  Grid *res = newGrid(taille);
   int i = 0;
-  Case actuel;
+  Box actuel;
 
   while (i < res->taille * res->taille) {
     x = rand() % (100);
@@ -381,7 +381,7 @@ Grille *genere_grille(int pourcentMur, int taille) {
 }
 
 
-void afficher_grille(Grille *grille) {
+void afficher_grille(Grid *grille) {
   for (int i = 0; i < grille->taille; i++) {
     for (int j = 0; j < grille->taille; j++) {
       switch (grille->tab[j + grille->taille * i]) {
@@ -421,7 +421,7 @@ void afficher_grille(Grille *grille) {
   }
 }
 
-Grille *readGrid(char *fileName) {
+Grid *readGrid(char *fileName) {
     FILE *f;
     int i, j, sizeOfGrid;
     f = fopen(fileName, "r");
@@ -430,7 +430,7 @@ Grille *readGrid(char *fileName) {
     char *g = (char *) malloc(sizeof(char)*(sizeOfGrid+1));
     size_t size = sizeof(char) * (sizeOfGrid+1);
 
-    Grille *grid = newGrid(sizeOfGrid);
+    Grid *grid = newGrid(sizeOfGrid);
 
     for (i = 0; i < sizeOfGrid; ++i) {
         getline(&g, &size, f);

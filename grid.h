@@ -47,7 +47,9 @@ CellulePoint* nouvelleCellule (void);
 
 void detruireCellule (CellulePoint* cel);
 
-void detruireSequenceCoor (SequencePoint* seq);
+SequencePoint * nouvelleSequencePoint (void);
+
+void detruireSequencePoint (SequencePoint* seq);
 
 SequencePoint* enumSubRow(Grid* grille, point p);
 SequencePoint* enumSubLine(Grid* grille, point p);

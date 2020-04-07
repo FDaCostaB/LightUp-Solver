@@ -1,9 +1,9 @@
 #include "generation.h"
 #include "grid.h"
 #include "logic.h"
+#include "dimacs.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 
 /*int main(int argc, char *argv[]) {
     bool Lpossible;
@@ -61,29 +61,53 @@
     return 0;
 }*/
 
-int main(int argc, char *argv[]) {
+/*int main(int argc, char *argv[]) {
     Clause *clause = newClause();
     Literal a = (Literal) { 0 , PLUS};
     Literal b = (Literal) { 1 , PLUS};
     Literal c = (Literal) { 2 , PLUS};
-    Literal d = (Literal) { 3 , PLUS};
+    Literal d = (Literal) { 3 , MINUS};
     Literal e = (Literal) { 4 , PLUS};
     Literal f = (Literal) { 5 , PLUS};
     Literal g = (Literal) { 6 , PLUS};
 
-    addToClause(clause,a);
-    addToClause(clause,b);
-    addToClause(clause,c);
-    addToClause(clause,d);
-    addToClause(clause,e);
-    addToClause(clause,f);
-    addToClause(clause,g);
+    addToClause(clause,a,false);
+    addToClause(clause,b,false);
+    addToClause(clause,c,false);
+    addToClause(clause,d,false);
+    addToClause(clause,e,false);
+    addToClause(clause,f,false);
+    addToClause(clause,g,false);
 
     afficherClause(clause);
 
-    CNF *res = KChosenInClause(2,clause);
-    afficherCNF(res);
+    CNF *res1 = KChosenInClause(4,clause);
+    afficherCNF(res1);
+    detruireCNF(res1);
+
+    CNF *res2 = KneglectedInClause(4,clause);
+    afficherCNF(res2);
+    detruireCNF(res2);
+
     detruireClause(clause);
-    detruireCNF(res);
+
     return 0;
+}*/
+
+
+int main(int argc, char *argv[]) {
+    // ouverture du fichier nom_f en lecture
+    FILE *f1 = fopen(argv[1], "r");
+    FILE *f2 = fopen(argv[2], "w");
+    CNF *res;
+    if (f1 == NULL || f2 == NULL){
+        printf("ERROR : Impossible file opening \n");
+        exit(1);
+    }
+    res = readDimacs(f1);
+    writeDimacs(f2,res);
+
+    fclose(f1);
+    fclose(f2);
+    detruireCNF(res);
 }

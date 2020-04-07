@@ -2,6 +2,8 @@
 // Created by fabie on 05/04/2020.
 //
 
+#include <stdbool.h>
+
 #ifndef INF432_LOGIC_H
 #define INF432_LOGIC_H
 
@@ -38,6 +40,7 @@ typedef struct CellClause CellClause;
 struct CNF{
     CellClause *tete;
     unsigned int taille;
+    unsigned int nbVar;
 };
 typedef struct CNF CNF;
 
@@ -47,7 +50,7 @@ void afficherClause (Clause* seq);
 
 void afficherCNF (CNF* seq);
 
-void addToClause(Clause *l, Literal x);
+void addToClause(Clause *C, Literal x, bool neglect);
 
 CellLiteral* newLiterral (void);
 
@@ -69,6 +72,6 @@ void detruireCNF (CNF* seq);
 
 CNF* KChosenInClause(int k, Clause *c);
 
-void KchosenInClauseRec(int k, int taille, int startIndex, CellLiteral *act, Clause *inConstruction,CNF *res);
+CNF* KneglectedInClause(int k, Clause *c);
 
 #endif //INF432_LOGIC_H

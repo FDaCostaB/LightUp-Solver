@@ -5,12 +5,24 @@
 #include "logic.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 
-void addToClause(Clause *C, Literal x) {
+void addToClause(Clause *C, Literal x, bool neglect) {
     CellLiteral *curr;
     CellLiteral *new;
     new = newLiterral();
-    new->x.sign = x.sign;
+    if (neglect) {
+        switch (x.sign){
+            case PLUS:
+                new->x.sign = MINUS;
+                break;
+            case MINUS :
+                new->x.sign = PLUS;
+                break;
+        }
+    } else{
+        new->x.sign = x.sign;
+    }
     new->x.x = x.x;
     if (C->tete==NULL) {
         C->tete=new;
@@ -108,7 +120,7 @@ Clause *CopyClause(Clause *source){
     Clause *Copy = newClause();
     Copy->taille = source->taille;
     while(curr != NULL){
-        addToClause(Copy,curr->x);
+        addToClause(Copy,curr->x,false);
         curr=curr->suivant;
     }
     return Copy;
@@ -117,6 +129,7 @@ Clause *CopyClause(Clause *source){
 CNF *newCNF(){
     CNF *res = (CNF *) malloc(sizeof(CNF));
     res->taille=0;
+    res->nbVar=0;
     res->tete=NULL;
     return res;
 }
@@ -127,7 +140,7 @@ void addToCNF(CNF *Cnf, Clause *C ){
     new->c = C;
     if (Cnf->tete==NULL) {
         Cnf->tete=new;
-        C->taille=1;
+        Cnf->taille=1;
     }
     else {
         curr = Cnf->tete;
@@ -136,7 +149,7 @@ void addToCNF(CNF *Cnf, Clause *C ){
 
         }
         curr->suivant = new;
-        C->taille = C->taille +1;
+        Cnf->taille = Cnf->taille +1;
     }
     return;
 }
@@ -153,20 +166,12 @@ void detruireCNF (CNF* seq) {
     free(seq);
 }
 
-CNF* KChosenInClause(int k, Clause *c){
-    CNF *res = newCNF();
-    Clause *start = newClause();
-    KchosenInClauseRec(k,c->taille,0,c->tete,start,res);
-    free(start);
-    return res;
-}
-
 void KchosenInClauseRec(int k, int taille, int startIndex, CellLiteral *act, Clause *inConstruction,CNF *res){
     if (taille<k) return;
     if(k==1){
         while(act != NULL){
             Clause *toAddCNF = CopyClause(inConstruction);
-            addToClause(toAddCNF,act->x);
+            addToClause(toAddCNF,act->x,false);
             //afficherClause(toAddCNF);
             addToCNF(res,toAddCNF);
             act = act->suivant;
@@ -175,12 +180,61 @@ void KchosenInClauseRec(int k, int taille, int startIndex, CellLiteral *act, Cla
     }else {
         Clause *Save = CopyClause(inConstruction);
         for(int n=startIndex; n <= taille - k; n++){
-            addToClause(Save,act->x);
+            addToClause(Save,act->x,false);
             //afficherClause(Save);
             KchosenInClauseRec(k-1,taille,n+1,act->suivant, Save, res);
             Save = CopyClause(inConstruction);
             act = act->suivant;
         }
         detruireClause(Save);
+        detruireClause(inConstruction);
     }
+}
+
+CNF* KChosenInClause(int k, Clause *c){
+    CNF *res = newCNF();
+    res->nbVar = c->taille;
+    Clause *start = newClause();
+    KchosenInClauseRec(k,c->taille,0,c->tete,start,res);
+    //detruireClause(start);
+    return res;
+}
+
+void KneglectedInClauseRec(int k, int taille, int startIndex, CellLiteral *act, Clause *inConstruction,CNF *res){
+    if (taille<k) return;
+    if(k==1){
+        CellLiteral *curr;
+        while(act != NULL){
+            Clause *toAddCNF = CopyClause(inConstruction);
+            addToClause(toAddCNF,act->x,true);
+            addToCNF(res,toAddCNF);
+            addToClause(inConstruction,act->x,false);
+            act = act->suivant;
+            curr = act;
+            while(curr !=NULL){
+                addToClause(toAddCNF,curr->x,false);
+                curr = curr->suivant;
+            }
+        }
+        detruireClause(inConstruction);
+    }else {
+        Clause *Save = CopyClause(inConstruction);
+        for(int n=startIndex; n <= taille - k; n++){
+            addToClause(Save,act->x,true);
+            KneglectedInClauseRec(k-1,taille,n+1,act->suivant, Save, res);
+            addToClause(inConstruction,act->x,false);
+            Save = CopyClause(inConstruction);
+            act = act->suivant;
+        }
+        detruireClause(Save);
+        detruireClause(inConstruction);
+    }
+}
+
+CNF* KneglectedInClause(int k, Clause *c){
+    CNF *res = newCNF();
+    res->nbVar = c->taille;
+    Clause *start = newClause();
+    KneglectedInClauseRec(k,c->taille,0,c->tete,start,res);
+    return res;
 }

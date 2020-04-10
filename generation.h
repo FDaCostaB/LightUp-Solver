@@ -17,12 +17,18 @@ void placerLampe(Box actuel, int i, Grid *grille);
 
 Grid *genere_grille(int pourcentMur, int taille);
 
+void clearGrid(Grid *grid);
+
 bool lampe_possible(int i, Grid *grille);
 
-void afficher_grille(Grid *grille);
+void dispGrid(Grid *grid);
+
+void writeGrid(char *fileName,Grid *grid);
 
 Grid *readGrid(char *fileName);
 
 bool isWall(Grid *grille, int index);
+
+Grid *newGrid(int size);
 
 #endif // INF432_GENERATION_H

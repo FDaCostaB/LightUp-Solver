@@ -75,7 +75,7 @@ void detruireSequencePoint(SequencePoint* seq){
     free(seq);
 }
 
-SequencePoint* enumSubRow(Grid* grid, point p){
+/*SequencePoint* enumSubRow(Grid* grid, point p){
     SequencePoint *res=nouvelleSequencePoint();
     point compt;
     bool stopAbove = false, stopBellow = false;
@@ -145,4 +145,4 @@ SequencePoint* enumAdj(int taille, point p){
         ajoute_queue(res,compt);
     }
     return  res;
-}
+}*/

@@ -96,7 +96,7 @@ int nbLampesPossiblesEtLibres(Grid *grille, int i) {
 
 //Out of the grid we consider that any Case is a wall
 bool isWall(Grid *grille,int i){
-    return i < 0 || i >= grille->taille || grille->tab[ i ] == MURV || grille->tab[ i ] == MUR0 ||
+    return i < 0 || i >= (grille->taille * grille->taille) || grille->tab[ i ] == MURV || grille->tab[ i ] == MUR0 ||
     grille->tab[ i ] == MUR1 || grille->tab[ i ] == MUR2 || grille->tab[ i ] == MUR3 || grille->tab[ i ] == MUR4;
 }
 
@@ -225,15 +225,14 @@ void ajouterLampe(Grid *grille, int casePossible[], int longueur, int aPlacer) {
   }
 
   if (longueur != 0) {
-    printf("Case choisie(s) : ");
+    //printf("Case choisie(s) : ");
     for (int i = 0; i < aPlacer; i++) {
       int x = rand() % longueur;
       while (grille->tab[casePossible[x]] == LAMPE) {
         x = (x + 1) % longueur;
       }
       grille->tab[casePossible[x]] = LAMPE;
-      printf(" ( %d , %d ) -  ", casePossible[x] % grille->taille,
-             casePossible[x] / grille->taille);
+      //printf(" ( %d , %d ) -  ", casePossible[x] % grille->taille,casePossible[x] / grille->taille);
     }
     for (int j = 0; j < longueur; j++) {
       if (grille->tab[casePossible[j]] != LAMPE)
@@ -309,7 +308,7 @@ void placerLampe(Box actuel, int i, Grid *grille) {
     if (actuel == MUR4)
       ajouterLampe(grille, casePossible, longueur, 4-nbLampesAdj(grille,i));
   }
-  switch (grille->tab[i]) {
+  /*switch (grille->tab[i]) {
   case MURV:
     printf("MURV en %d , %d. Case possible : ", i % grille->taille,
            i / grille->taille);
@@ -342,7 +341,7 @@ void placerLampe(Box actuel, int i, Grid *grille) {
     printf(" ( %d , %d ) ", casePossible[i] % grille->taille,
            casePossible[i] / grille->taille);
   }
-  printf("\n");
+  printf("\n");*/
 /////TODO COMPLETE LIGNE
 }
 
@@ -380,11 +379,21 @@ Grid *genere_grille(int pourcentMur, int taille) {
   return res;
 }
 
+void clearGrid(Grid *grid){
+    for (int i = 0; i < grid->taille; i++) {
+        for (int j = 0; j < grid->taille; j++) {
+            if(grid->tab[j + grid->taille * i] == LAMPE || grid->tab[j + grid->taille * i] == VIDE){
+                grid->tab[j + grid->taille * i] = LIBRE;
+            }
+        }
+    }
+}
 
-void afficher_grille(Grid *grille) {
-  for (int i = 0; i < grille->taille; i++) {
-    for (int j = 0; j < grille->taille; j++) {
-      switch (grille->tab[j + grille->taille * i]) {
+
+void dispGrid(Grid *grid) {
+  for (int i = 0; i < grid->taille; i++) {
+    for (int j = 0; j < grid->taille; j++) {
+      switch (grid->tab[j + grid->taille * i]) {
       case MURV:
         printf("#");
         break;
@@ -419,6 +428,52 @@ void afficher_grille(Grid *grille) {
     }
     printf("\n");
   }
+}
+
+void writeGrid(char *fileName,Grid *grid) {
+    FILE *f = fopen(fileName, "w");
+    if (f == NULL){
+        printf("ERROR : Impossible file opening \n");
+        exit(1);
+    }
+    fprintf(f,"%d\n",grid->taille);
+    for (int i = 0; i < grid->taille; i++) {
+        for (int j = 0; j < grid->taille; j++) {
+            switch (grid->tab[j + grid->taille * i]) {
+                case MURV:
+                    fprintf(f,"#");
+                    break;
+                case MUR0:
+                    fprintf(f,"0");
+                    break;
+                case MUR1:
+                    fprintf(f,"1");
+                    break;
+                case MUR2:
+                    fprintf(f,"2");
+                    break;
+                case MUR3:
+                    fprintf(f,"3");
+                    break;
+                case MUR4:
+                    fprintf(f,"4");
+                    break;
+                case VIDE:
+                    fprintf(f,".");
+                    break;
+                case LIBRE:
+                    fprintf(f,"_");
+                    break;
+                case LAMPE:
+                    fprintf(f,"O");
+                    break;
+                case INCONNU:
+                    fprintf(f,"?");
+                    break;
+            }
+        }
+        fprintf(f,"\n");
+    }
 }
 
 Grid *readGrid(char *fileName) {
@@ -469,5 +524,8 @@ Grid *readGrid(char *fileName) {
             }
         }
     }
+
+    free(g);
+    fclose(f);
     return grid;
 }

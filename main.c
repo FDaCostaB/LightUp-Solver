@@ -17,7 +17,7 @@
     Grid *res = readGrid(argv[3]);
     Lpossible = lampe_possible(x + res->taille * y,res);
     printf("Lampe possible : %d \n",(int)Lpossible);
-    afficher_grille(res);
+    dispGrid(res);
     return 0;
 }*/
 
@@ -33,7 +33,7 @@
     pourcentMur=atoi(argv[1]);
     taille=atoi(argv[2]);
     res = genere_grille(pourcentMur,taille);
-    afficher_grille(res);
+    dispGrid(res);
     return 0;
 }*/
 
@@ -66,26 +66,26 @@
     Literal a = (Literal) { 0 , PLUS};
     Literal b = (Literal) { 1 , PLUS};
     Literal c = (Literal) { 2 , PLUS};
-    Literal d = (Literal) { 3 , MINUS};
-    Literal e = (Literal) { 4 , PLUS};
-    Literal f = (Literal) { 5 , PLUS};
-    Literal g = (Literal) { 6 , PLUS};
+    //Literal d = (Literal) { 3 , MINUS};
+    //Literal e = (Literal) { 4 , PLUS};
+    //Literal f = (Literal) { 5 , PLUS};
+    //Literal g = (Literal) { 6 , PLUS};
 
     addToClause(clause,a,false);
     addToClause(clause,b,false);
     addToClause(clause,c,false);
-    addToClause(clause,d,false);
-    addToClause(clause,e,false);
-    addToClause(clause,f,false);
-    addToClause(clause,g,false);
+    //addToClause(clause,d,false);
+    //addToClause(clause,e,false);
+    //addToClause(clause,f,false);
+    //addToClause(clause,g,false);
 
     afficherClause(clause);
 
-    CNF *res1 = KChosenInClause(4,clause);
-    afficherCNF(res1);
-    detruireCNF(res1);
+    //CNF *res1 = KChosenInClause(4,clause);
+    //afficherCNF(res1);
+    //detruireCNF(res1);
 
-    CNF *res2 = KneglectedInClause(4,clause);
+    CNF *res2 = KneglectedInClause(3,clause);
     afficherCNF(res2);
     detruireCNF(res2);
 
@@ -95,7 +95,7 @@
 }*/
 
 
-int main(int argc, char *argv[]) {
+/*int main(int argc, char *argv[]) {
     // ouverture du fichier nom_f en lecture
     FILE *f1 = fopen(argv[1], "r");
     FILE *f2 = fopen(argv[2], "w");
@@ -110,4 +110,25 @@ int main(int argc, char *argv[]) {
     fclose(f1);
     fclose(f2);
     detruireCNF(res);
+}*/
+
+
+int main(int argc, char *argv[]) {
+
+    if(argc!=4){
+        printf("Usage commande : ./main grille indice fichier.cnf\n");
+        return 1;
+    }
+    Grid *grid = readGrid(argv[1]);
+    dispGrid(grid);
+    int x = atoi(argv[2]);
+
+    CNF *res = cnfOfBox(grid,x);
+    afficherCNF(res);
+    writeDimacs(argv[3],res);
+
+    free(grid->tab);
+    free(grid);
+    detruireCNF(res);
+
 }

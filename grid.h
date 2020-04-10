@@ -51,9 +51,9 @@ SequencePoint * nouvelleSequencePoint (void);
 
 void detruireSequencePoint (SequencePoint* seq);
 
-SequencePoint* enumSubRow(Grid* grille, point p);
+/*SequencePoint* enumSubRow(Grid* grille, point p);
 SequencePoint* enumSubLine(Grid* grille, point p);
 
-SequencePoint* enumAdj(int taille, point p);
+SequencePoint* enumAdj(int taille, point p);*/
 
 #endif //INF432_GRID_H

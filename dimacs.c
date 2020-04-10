@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "dimacs.h"
+#include "generation.h"
 
 void commentPartInspection(FILE *f)
 {
@@ -119,7 +120,83 @@ CNF *readDimacs(FILE *f){
 
 }
 
-void writeDimacs(FILE *f,CNF *toWrite){
+Clause *readMinisatOut(char *fileName){
+    char scanned = 0;
+    Literal l ;
+
+    FILE *f = fopen(fileName, "r");
+    if (f == NULL){
+        printf("ERROR : Impossible file opening \n");
+        exit(1);
+    }
+
+    /* problem line */
+    char *line = (char *) malloc(sizeof(char)*7);
+    fgets(line, 6, f);
+    if(strcmp(line, "UNSAT")==0){
+        printf("No solution was found by minisat\n");
+        exit(1);
+    }
+    free(line);
+
+    /* Clause utilisé comme liste chainée comme stockage simple et efficace */
+    Clause * res = newClause();
+    int litteralVal;
+    /*Each loop read a litteral */
+    while(feof(f) == 0){
+        litteralVal = 0;
+        l.sign = PLUS;
+        l.x = 0;
+        while( (scanned < '0' || scanned >'9') && scanned != '-' && feof(f) == 0){
+            fscanf(f,"%c",&scanned);
+        }
+        if(scanned == '0'){
+            return res;
+        }else {
+            if(scanned == '-'){
+                l.sign = MINUS;
+                fscanf(f,"%c",&scanned);
+                if(scanned<'1' || scanned>'9'){
+                    printf("ERROR : Unexpected character in file (Not a number or 0 after -) \n");
+                    exit(1);
+                }
+            }
+
+            while( scanned >= '0' && scanned<='9'&& feof(f) == 0){
+                litteralVal = 10 * litteralVal + (scanned-'0');
+                fscanf(f,"%c",&scanned);
+            }
+            l.x = litteralVal;
+            addToClause(res,l,false);
+        }
+
+    }
+
+    return res;
+}
+
+void dispMinisatOutput(Clause *solution, Grid *grid){
+    CellLiteral *curr = solution->tete;
+    while(curr != NULL) {
+        if(curr->x.sign==PLUS) {
+            if(grid->tab[(curr->x.x) - 1] !=LIBRE) {
+                printf("ERROR : LAMP ON NON-EMPTY BOX\n");
+                exit(1);
+            }
+            grid->tab[(curr->x.x) - 1] = LAMPE;
+        }
+        curr = curr->suivant;
+    }
+
+    dispGrid(grid);
+}
+
+void writeDimacs(char *fileName,CNF *toWrite){
+    FILE *f = fopen(fileName, "w");
+    if (f == NULL){
+        printf("ERROR : Impossible file opening \n");
+        exit(1);
+    }
     CellClause *currClause = toWrite->tete;
     CellLiteral *currLitt;
     fprintf(f,"p cnf %d %d\n", toWrite->nbVar, toWrite->taille);
@@ -128,10 +205,10 @@ void writeDimacs(FILE *f,CNF *toWrite){
         while(currLitt != NULL){
             switch (currLitt->x.sign){
                 case PLUS:
-                    fprintf(f,"%d ",currLitt->x.x);
+                    fprintf(f,"%d ",(currLitt->x.x)+1);
                     break;
                 case MINUS:
-                    fprintf(f,"-%d ",currLitt->x.x);
+                    fprintf(f,"-%d ",(currLitt->x.x)+1);
                     break;
             }
             currLitt = currLitt->suivant;
@@ -139,4 +216,5 @@ void writeDimacs(FILE *f,CNF *toWrite){
         fprintf(f,"0 \n");
         currClause = currClause->suivant;
     }
+    fclose(f);
 }

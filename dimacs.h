@@ -9,6 +9,10 @@
 
 CNF *readDimacs(FILE *f);
 
-void writeDimacs(FILE *f,CNF *toWrite);
+Clause *readMinisatOut(char *fileName);
+
+void dispMinisatOutput(Clause *solution, Grid *grid);
+
+void writeDimacs(char *fileName,CNF *toWrite);
 
 #endif //INF432_DIMACS_H

@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
          concatCNF(res,temp);
     }
 
-    writeDimacs(argv[2], res);
+    writeDimacs(argv[2], res,1);
     //afficherCNF(res);
 
     free(grid->tab);

@@ -8,23 +8,24 @@
 #include "dimacs.h"
 
 int main(int argc, char *argv[]) {
-    if(argc!=){
+    if(argc!=3){
         printf("Usage commande : ./main source.cnf res.cnf\n");
         return 1;
     }
 
-    FILE *f1 = fopen(argv[1], "r");
-    CNF *res;
-    if (f1 == NULL){
-        printf("ERROR : Impossible file opening \n");
-        exit(1);
-    }
-    res = readDimacs(f1);
-    while(){
+    CNF *toReduct,*temp;
+    CNF *res=newCNF();
 
+    toReduct = readDimacs(argv[1]);
+    res->nbVar = toReduct->nbVar;
+    CellClause *curr = toReduct->tete;
+    while(curr!=NULL){
+        temp = SATto3SAT(curr->c,&(res->nbVar));
+        concatCNF(res,temp);
+        curr = curr->suivant;
     }
-    writeDimacs(argv[2],res3sat);
+    writeDimacs(argv[2],res,0);
 
-    fclose(f1);
     detruireCNF(res);
+    return 0;
 }

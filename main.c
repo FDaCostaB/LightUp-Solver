@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
     Literal d = (Literal) { 4 , PLUS};
     Literal e = (Literal) { 5 , PLUS};
     Literal f = (Literal) { 6 , PLUS};
-    Literal g = (Literal) { 7 , PLUS};
+   // Literal g = (Literal) { 7 , PLUS};
 
     addToClause(clause,a,false);
     addToClause(clause,b,false);
@@ -77,11 +77,11 @@ int main(int argc, char *argv[]) {
     addToClause(clause,d,false);
     addToClause(clause,e,false);
     addToClause(clause,f,false);
-    addToClause(clause,g,false);
+   // addToClause(clause,g,false);
 
     afficherClause(clause);
-    int tailleCNF =  7;
-    CNF *cnf = SATto3SAT(clause,&tailleCNF);
+    int nbVarCNF =  6;
+    CNF *cnf = SATto3SAT(clause,&nbVarCNF);
     afficherCNF(cnf);
 
     detruireClause(clause);

@@ -7,14 +7,14 @@
 #ifndef INF432_DIMACS_H
 #define INF432_DIMACS_H
 
-CNF *readDimacs(FILE *f);
+CNF *readDimacs(char *fileName);
 
 Clause *readMinisatOut(char *fileName);
 
 void dispMinisatOutput(Clause *solution, Grid *grid);
 
-void writeDimacs(char *fileName,CNF *toWrite);
+void writeDimacs(char *fileName,CNF *toWrite, unsigned int toAdd);
 
-CNF * SATto3SAT(Clause *c, int *tailleCNF );
+CNF * SATto3SAT(Clause *c, unsigned int *tailleCNF );
 
 #endif //INF432_DIMACS_H

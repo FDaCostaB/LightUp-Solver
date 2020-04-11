@@ -22,7 +22,6 @@ int main(int argc, char *argv[]) {
     }
 
     Grid *grid = readGrid(argv[1]);
-    dispGrid(grid);
     printf("\n\n --Solution of the grid --\n\n");
 
     res = readMinisatOut(argv[2]);

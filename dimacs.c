@@ -218,3 +218,73 @@ void writeDimacs(char *fileName,CNF *toWrite){
     }
     fclose(f);
 }
+
+CNF * SATto3SAT(Clause *c, int *tailleCNF ){ //CNF *cnf){
+    if (c->taille == 1) {
+        //c->taille += 2
+        Clause *newVars = newClause();
+        addToClause(newVars, (Literal) {*tailleCNF + 1, PLUS}, false);
+        addToClause(newVars, (Literal) {*tailleCNF + 2, PLUS}, false);
+        CNF *newCNF1 = KneglectedInClause(1, newVars);
+        CNF *newCNF2 = KneglectedInClause(2, newVars);
+        concatCNF(newCNF1, newCNF2);
+        addToCNF(newCNF1,newVars);
+        CellClause *curr = newCNF1->tete;
+        while (curr != NULL) {
+            addToClause(curr->c, c->tete->x, false);
+            curr = curr->suivant;
+        }
+        *tailleCNF = *tailleCNF + 2;
+        return newCNF1;
+    }else if (c->taille == 2) {
+        //c->taille
+        //newVars = newClause()
+        //addToClause( {(CNF->nbVars)/(grille->taille*grille->taille)+1, PLUS}, newVars )
+        CNF *res = newCNF();
+        Clause *newClause = CopyClause(c);
+        addToClause(c, (Literal){*tailleCNF + 1, PLUS}, false);
+        addToClause(newClause, (Literal){*tailleCNF + 1, MINUS}, false );
+        addToCNF(res, c);
+        addToCNF(res, newClause);
+        *tailleCNF = *tailleCNF + 1;
+        return res;
+    }
+    else if (c->taille == 3) {
+        CNF *res = newCNF();
+        addToCNF(res,c);
+        return res;
+    }else {
+        Clause *newVars = newClause();
+        CNF *res = newCNF();
+        for (int i = *tailleCNF + 1; i <= *tailleCNF * 2 - 3; i++) {
+            addToClause( newVars, (Literal){i, PLUS},false);
+        }
+        CellLiteral *currNew = newVars->tete;
+        CellLiteral *currC1 = c->tete;
+        Clause *Cprim = newClause();
+        addToClause(Cprim, currC1->x,false);
+        currC1 = currC1->suivant;
+        addToClause(Cprim, currC1->x,false);
+        currC1 = currC1->suivant;
+        addToClause(Cprim, currNew->x,false);
+        addToCNF(res, Cprim);
+
+        while (currC1->suivant->suivant != NULL && currNew->suivant != NULL) {
+            Cprim = newClause();
+            addToClause(Cprim, currNew->x, true);
+            currNew = currNew->suivant;
+            addToClause(Cprim, currC1->x, false);
+            currC1 = currC1->suivant;
+            addToClause(Cprim, currNew->x, false);
+            addToCNF(res, Cprim);
+        }
+        Cprim = newClause();
+        addToClause(Cprim, currNew->x, true);
+        addToClause(Cprim, currC1->x, false);
+        currC1 = currC1->suivant;
+        addToClause(Cprim, currC1->x, false);
+        addToCNF(res, Cprim);
+        *tailleCNF = *tailleCNF +  *tailleCNF -3;
+        return res;
+    }
+}

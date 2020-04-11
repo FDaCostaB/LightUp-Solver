@@ -61,38 +61,33 @@
     return 0;
 }*/
 
-/*int main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
     Clause *clause = newClause();
-    Literal a = (Literal) { 0 , PLUS};
-    Literal b = (Literal) { 1 , PLUS};
-    Literal c = (Literal) { 2 , PLUS};
-    //Literal d = (Literal) { 3 , MINUS};
-    //Literal e = (Literal) { 4 , PLUS};
-    //Literal f = (Literal) { 5 , PLUS};
-    //Literal g = (Literal) { 6 , PLUS};
+    Literal a = (Literal) { 1 , PLUS};
+    Literal b = (Literal) { 2 , PLUS};
+    Literal c = (Literal) { 3 , PLUS};
+    Literal d = (Literal) { 4 , PLUS};
+    Literal e = (Literal) { 5 , PLUS};
+    Literal f = (Literal) { 6 , PLUS};
+    Literal g = (Literal) { 7 , PLUS};
 
     addToClause(clause,a,false);
     addToClause(clause,b,false);
     addToClause(clause,c,false);
-    //addToClause(clause,d,false);
-    //addToClause(clause,e,false);
-    //addToClause(clause,f,false);
-    //addToClause(clause,g,false);
+    addToClause(clause,d,false);
+    addToClause(clause,e,false);
+    addToClause(clause,f,false);
+    addToClause(clause,g,false);
 
     afficherClause(clause);
-
-    //CNF *res1 = KChosenInClause(4,clause);
-    //afficherCNF(res1);
-    //detruireCNF(res1);
-
-    CNF *res2 = KneglectedInClause(3,clause);
-    afficherCNF(res2);
-    detruireCNF(res2);
+    int tailleCNF =  7;
+    CNF *cnf = SATto3SAT(clause,&tailleCNF);
+    afficherCNF(cnf);
 
     detruireClause(clause);
 
     return 0;
-}*/
+}
 
 
 /*int main(int argc, char *argv[]) {
@@ -113,7 +108,7 @@
 }*/
 
 
-int main(int argc, char *argv[]) {
+/*int main(int argc, char *argv[]) {
 
     if(argc!=4){
         printf("Usage commande : ./main grille indice fichier.cnf\n");
@@ -131,4 +126,4 @@ int main(int argc, char *argv[]) {
     free(grid);
     detruireCNF(res);
 
-}
+}*/

@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "dimacs.h"
-#include "generation.h"
+#include "logic.h"
 
 void commentPartInspection(FILE *f)
 {

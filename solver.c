@@ -92,6 +92,16 @@ bool belongClause(Clause *c,variable x){
     return false;
 }
 
+Sign signInClause(Clause *c,variable x){
+    CellLiteral *curr = c->tete;
+    while(curr!=NULL){
+        if(curr->x.x == x ) return curr->x.sign;
+        curr = curr->suivant;
+    }
+    printf("SignInClause : Error variable not found in clause");
+    exit(1);
+}
+
 int countClause(Clause *c,variable x){
     CellLiteral *curr = c->tete;
     int count = 0;
@@ -155,19 +165,68 @@ variable chooseVariableJW(CNF *tosolve, Clause *clause){
 }
 
 variable chooseVariableMOMS(CNF *tosolve, Clause *clause){
-    enumCNF *enumeration = countCNF(tosolve, clause,-1);
+    enumCNF *enumeration = countCNF(tosolve, clause,2);
     afficherClause(clause);
     dispEnumCNF(enumeration);
     int max = 0;
     variable moms = 0;
     for(int i=0; i<enumeration->size; i++){
-        if(enumeration->sumSize[i] > max) {
+        if(enumeration->occurence[i] > max) {
             moms = i;
-            max = enumeration->sumSize[i];
+            max = enumeration->occurence[i];
         }
     }
     printf("Chosen : %d\n",moms+1);
     return moms+1;
+}
+
+variable chooseVariableScore(CNF *tosolve, Clause *clause){
+    int *score = (int *)malloc(sizeof(int) * tosolve->nbVar);
+    for(int i=0;i<tosolve->nbVar;i++){
+        score[i]=0;
+    }
+    CellClause *currClause;
+    currClause = tosolve->tete;
+    CellLiteral *currLit;
+    int occInClause;
+    while(currClause != NULL){
+        currLit = clause->tete;
+        while(currLit != NULL){
+            if(belongClause(currClause->c,(variable)currLit->x.x )){
+                switch( signInClause(currClause->c,(variable)currLit->x.x )){
+                    case PLUS:
+                        score[currLit->x.x-1] += (int)currClause->c->taille;
+                        break;
+                    case MINUS:
+                        score[currLit->x.x-1] -= (int)currClause->c->taille;
+                        break;
+                }
+            }
+            currLit = currLit->suivant;
+        }
+        currClause = currClause->suivant;
+    }
+    currLit = clause->tete;
+    while(currLit != NULL){
+        occInClause = countClause(clause,currLit->x.x);
+        printf("I");
+        score[currLit->x.x-1] = score[currLit->x.x-1]/occInClause;
+        currLit = currLit->suivant;
+    }
+    printf("\n");
+    afficherClause(clause);
+    int max = score[0];
+    variable chosen = 0;
+    printf("- %d -\n",score[0]);
+    for(int i=1;i<tosolve->nbVar;i++){
+        printf("- %d -\n",score[i]);
+        if ( (max <= 0 && score[i] < max) || (max>=0 && score[i] > max)){
+            max =score[i];
+            chosen = i;
+        }
+    }
+    printf("Chosen : %d\n", chosen+1);
+    return (variable) chosen+1;
 }
 
 void flipInAssignation(int val,Assignation *v){
@@ -210,7 +269,7 @@ Assignation *WalkSat(CNF *toSolve){
         if (q < P){
             toFlip = drawVariable(unsatisfied);
         }else{
-            toFlip = chooseVariableJW(toSolve, unsatisfied);
+            toFlip = chooseVariableScore(toSolve, unsatisfied);
         }
         flipInAssignation(toFlip,v);
         i++;

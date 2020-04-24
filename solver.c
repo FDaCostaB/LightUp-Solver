@@ -79,7 +79,7 @@ variable drawVariable(Clause *c){
         curr = curr->suivant;
         val--;
     }
-    //if (curr==NULL)
+    //if (curr==NULL) NE DEVRAIT JAMAIS ARRIVER
     return curr->x.x;
 }
 
@@ -110,7 +110,7 @@ enumCNF *countCNF(CNF *cnf,Clause *clause,int maxSize){
     CellLiteral *currLit;
     int occInClause;
     while(currClause != NULL){
-        currLit = currClause->c->tete;
+        currLit = clause->tete;
         while(currLit != NULL){
             if( belongClause(currClause->c,(variable)currLit->x.x ) && ( maxSize < 0 || currClause->c->taille < maxSize) ){
                 res->occurence[currLit->x.x-1] ++;
@@ -124,11 +124,13 @@ enumCNF *countCNF(CNF *cnf,Clause *clause,int maxSize){
     currLit = clause->tete;
     while(currLit != NULL){
         occInClause = countClause(clause,currLit->x.x);
-        res->totalSum -= res->occurence[currLit->x.x-1]/occInClause;
-        res->occurence[currLit->x.x-1] = res->occurence[currLit->x.x-1] ++/occInClause;
+        printf("I");
+        res->totalSum -= res->occurence[currLit->x.x-1]*(occInClause-1);
         res->sumSize[currLit->x.x-1] = res->sumSize[currLit->x.x-1]/occInClause;
+        res->occurence[currLit->x.x-1] = res->occurence[currLit->x.x-1] /occInClause;
         currLit = currLit->suivant;
     }
+    printf("\n");
     return res;
 }
 
@@ -136,28 +138,36 @@ enumCNF *countCNF(CNF *cnf,Clause *clause,int maxSize){
 //JW
 variable chooseVariableJW(CNF *tosolve, Clause *clause){
     enumCNF *enumeration = countCNF(tosolve, clause,-1);
-    int actualProp = 0;
-    float pick = (float) ( rand() % enumeration->totalSum / (enumeration->totalSum) );
+    float actualProp = 0;
+    float pick = (float) enumeration->totalSum/(float)(rand()%enumeration->totalSum);
+    afficherClause(clause);
+    printf("Pick : %f\n",pick);
+    dispEnumCNF(enumeration);
     for(int i = 0; i < enumeration->size; i++){
-        actualProp += enumeration->sumSize[i];
-        if (pick >= (float)1/actualProp && pick < (float)1/actualProp ){
-            return (variable) i;
+        actualProp += (float) enumeration->sumSize[i];
+        if (actualProp !=0 && pick > (float)enumeration->totalSum / actualProp){
+            printf("Chosen : %d\n",i+1);
+            return (variable) i+1;
         }
     }
-    return (variable) -1;
+    printf("Error no variable choose in JW heuristics\n");
+    exit(1);
 }
 
 variable chooseVariableMOMS(CNF *tosolve, Clause *clause){
     enumCNF *enumeration = countCNF(tosolve, clause,-1);
+    afficherClause(clause);
+    dispEnumCNF(enumeration);
     int max = 0;
-    variable moms;
+    variable moms = 0;
     for(int i=0; i<enumeration->size; i++){
         if(enumeration->sumSize[i] > max) {
             moms = i;
             max = enumeration->sumSize[i];
         }
     }
-    return moms;
+    printf("Chosen : %d\n",moms+1);
+    return moms+1;
 }
 
 void flipInAssignation(int val,Assignation *v){
@@ -179,6 +189,14 @@ void dispAssignation(Assignation *model){
     printf("\n");
 }
 
+void dispEnumCNF(enumCNF *countCNF){
+    printf("\n");
+    for(int i=0; i<countCNF->size;i++){
+        printf(" { %d : occurence : %d ,sum of size of clause : %d } \n", i+1, countCNF->occurence[i], countCNF->sumSize[i]);
+    }
+    printf("Total sum : %d\n",countCNF->totalSum);
+}
+
 Assignation *WalkSat(CNF *toSolve){
     int i = 0, N = 10000;
     double q, P = 0.5;
@@ -188,6 +206,7 @@ Assignation *WalkSat(CNF *toSolve){
     while(!isModelCNF(toSolve,v) && i < N){
         q = (float)rand()/(float)(RAND_MAX);
         unsatisfied = unsatisfiedClause(toSolve,v);
+        printf("%d\n",i);
         if (q < P){
             toFlip = drawVariable(unsatisfied);
         }else{

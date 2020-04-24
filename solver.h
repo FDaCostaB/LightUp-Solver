@@ -43,6 +43,8 @@ variable chooseVariableJW(CNF *tosolve, Clause *clause);
 
 enumCNF *countCNF(CNF *cnf,Clause *clause,int maxSize);
 
+void dispEnumCNF(enumCNF *countCNF);
+
 Assignation *WalkSat(CNF *toSolve);
 
 #endif //INF432_SOLVER_H

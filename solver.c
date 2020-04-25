@@ -7,7 +7,7 @@
 #include "solver.h"
 #include "logic.h"
 
-Assignation *newRandomAssignation(int size) {
+Assignation *newRandomAssignation(unsigned int size) {
     int sign;
     Assignation *v = (Assignation *)malloc(sizeof(Assignation));
     Literal *tab = (Literal *)malloc(sizeof(Literal) * size);
@@ -22,12 +22,14 @@ Assignation *newRandomAssignation(int size) {
             case 1:
                 v->tab[i-1] = (Literal) {i,PLUS};
                 break;
+            default:
+                break;
         }
     }
     return v;
 }
 
-enumCNF *initEnumCNF(int size){
+enumCNF *initEnumCNF(unsigned int size){
     enumCNF *e = (enumCNF *)malloc(sizeof(enumCNF));
     int *val = (int *)malloc(sizeof(int) * size);
     float *sos = (float *)malloc(sizeof(float) * size);
@@ -109,15 +111,14 @@ enumCNF *countCNF(CNF *cnf,int maxSize){ //valueComputed = occurence
     currClause = cnf->tete;
     CellLiteral *currLit;
     int occInClause;
-    int toSub;
     while(currClause != NULL) {
         currLit = currClause->c->tete;
         while(currLit != NULL) {
             if (maxSize < 0 || currClause->c->taille <= maxSize) {
                 occInClause = countClause(currClause->c,currLit->x.x);
                 res->valueComputed[currLit->x.x - 1] ++;
-                res->sumSize[currLit->x.x - 1] += currClause->c->taille /occInClause ;
-                res->totalSum += currClause->c->taille;
+                res->sumSize[currLit->x.x - 1] += (float)currClause->c->taille / (float) occInClause ;
+                res->totalSum += (int) currClause->c->taille;
             }
             currLit = currLit->suivant;
         }
@@ -137,10 +138,10 @@ enumCNF *scoreLitCNF(CNF *cnf){ // ValueComputed = score
         while (currLit != NULL) {
             switch( signInClause(currClause->c,(variable)currLit->x.x )){
                 case PLUS:
-                    res->valueComputed[currLit->x.x-1] += currClause->c->taille;
+                    res->valueComputed[currLit->x.x-1] ++;
                     break;
                 case MINUS:
-                    res->valueComputed[currLit->x.x-1] -= currClause->c->taille ;
+                    res->valueComputed[currLit->x.x-1] -- ;
                     break;
                 }
             currLit = currLit->suivant;
@@ -152,19 +153,18 @@ enumCNF *scoreLitCNF(CNF *cnf){ // ValueComputed = score
 
 
 //JW
-variable chooseVariableJW(CNF *tosolve, Clause *clause, enumCNF *enumeration){ //valueComputed = occurence
+variable chooseVariableJW(Clause *clause, enumCNF *enumeration){ //valueComputed = occurence
     float actualProp = 0;
     CellLiteral *currLit = clause->tete;
     int totalClauseSum = 0;
     while(currLit != NULL){
-        totalClauseSum += enumeration->sumSize[currLit->x.x-1];
+        totalClauseSum += (int) enumeration->sumSize[currLit->x.x-1];
         currLit = currLit->suivant;
     }
-    printf("Sum : %d\n",totalClauseSum);
     float pick = (float) totalClauseSum / (float) (rand()%totalClauseSum);
     afficherClause(clause);
-    printf("Pick : %f\n",pick);
-    dispEnumCNF(enumeration);
+    printf("Pick : %d / %.1f = %f \n", totalClauseSum, (float) totalClauseSum / pick, pick);
+    printf("Sum : %d\n",totalClauseSum);
     currLit = clause->tete;
     while(currLit != NULL){
         actualProp += (float) enumeration->sumSize[currLit->x.x-1];
@@ -179,15 +179,16 @@ variable chooseVariableJW(CNF *tosolve, Clause *clause, enumCNF *enumeration){ /
     exit(1);
 }
 
-variable chooseVariableMOMS(CNF *tosolve, Clause *clause, enumCNF *enumeration){ //valueComputed = occurence
+variable chooseVariableMOMS(Clause *clause, enumCNF *enumeration){ //valueComputed = occurence
     afficherClause(clause);
-    dispEnumCNF(enumeration);
-    CellLiteral *currLit = clause->tete;
-    int max = 0;
+    CellLiteral *currLit;
     variable moms = 0;
     currLit = clause->tete;
+    int max = enumeration->valueComputed[currLit->x.x - 1];
+    moms = currLit->x.x;
     while(currLit != NULL){
         if(enumeration->valueComputed[currLit->x.x - 1] > max) {
+            //printf(" %d : %d > %d :%d \n",currLit->x.x, enumeration->valueComputed[currLit->x.x - 1], moms, max);
             moms = currLit->x.x;
             max = enumeration->valueComputed[currLit->x.x - 1];
         }
@@ -197,14 +198,14 @@ variable chooseVariableMOMS(CNF *tosolve, Clause *clause, enumCNF *enumeration){
     return moms;
 }
 
-variable chooseVariableScore(CNF *tosolve, Clause *clause, enumCNF * enumeration){ // ValueComputed = score
+variable chooseVariableScore(Clause *clause, enumCNF * enumeration){ // ValueComputed = score
     afficherClause(clause);
-    dispEnumCNF(enumeration);
-    float max = enumeration->valueComputed[clause->tete->x.x-1];
+    int max = enumeration->valueComputed[clause->tete->x.x-1];
     variable chosen = clause->tete->x.x;
     CellLiteral *currLit = clause->tete->suivant;
     while(currLit != NULL){
-        if ( (max <= 0 && (int)enumeration->valueComputed[currLit->x.x - 1] < (int)max) || (max>=0 && (int)enumeration->valueComputed[currLit->x.x - 1] > (int)max)){
+        if ( (max <= 0 && enumeration->valueComputed[currLit->x.x - 1] < max) || (max <= 0 && enumeration->valueComputed[currLit->x.x - 1] > -1 * max) ||
+        (max>=0 && enumeration->valueComputed[currLit->x.x - 1] > max) || (max>=0 && enumeration->valueComputed[currLit->x.x - 1] < -1 * max) ){
             max = enumeration->valueComputed[currLit->x.x - 1];
             chosen = currLit->x.x;
         }
@@ -243,21 +244,24 @@ void dispEnumCNF(enumCNF *countCNF){
 
 Assignation *WalkSat(CNF *toSolve){
     int i = 0, N = 10000;
-    double q, P = 0.1;
+    double q, P = 0.0;
     Clause *unsatisfied;
     variable toFlip;
     Assignation *v = newRandomAssignation(toSolve->nbVar);
-    enumCNF *enumeration = countCNF(toSolve,-1); // JW => maxSize = -1 // MOMS => maxSize = 2
-    //enumCNF *enumeration = scoreLitCNF(toSolve);
+    //enumCNF *enumeration = countCNF(toSolve,2); // JW => maxSize = -1 // MOMS => maxSize = 2
+    enumCNF *enumeration = scoreLitCNF(toSolve);
     afficherCNF(toSolve);
+    dispEnumCNF(enumeration);
     while(!isModelCNF(toSolve,v) && i < N){
         q = (float)rand()/(float)(RAND_MAX);
         unsatisfied = unsatisfiedClause(toSolve,v);
-        printf("%d\n",i);
+        printf("\n%d\n",i);
         if (q < P){
             toFlip = drawVariable(unsatisfied);
         }else{
-            toFlip = chooseVariableJW(toSolve, unsatisfied, enumeration);
+            //toFlip = chooseVariableJW(unsatisfied, enumeration);
+            //toFlip = chooseVariableMOMS(unsatisfied, enumeration);
+            toFlip = chooseVariableScore(unsatisfied, enumeration);
         }
         flipInAssignation(toFlip,v);
         i++;

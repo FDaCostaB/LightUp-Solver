@@ -9,21 +9,21 @@
 
 typedef struct assignation {
     Literal *tab;
-    int size;
+    unsigned int size;
 } Assignation;
 
 typedef struct enumCNF {
     int *valueComputed;
     float *sumSize;
-    int size;
+    unsigned int size;
     int totalSum;
 } enumCNF;
 
-Assignation *newRandomAssignation(int size);
+Assignation *newRandomAssignation(unsigned int size);
 
 void flipInAssignation(int val,Assignation *v);
 
-enumCNF *initEnumCNF(int size);
+enumCNF *initEnumCNF(unsigned int size);
 
 void dispAssignation(Assignation *model);
 
@@ -37,11 +37,11 @@ Clause *unsatisfiedClause(CNF *toSolve, Assignation *v);
 
 bool isModelCNF(CNF *toSolve,Assignation *v);
 
-variable chooseVariableMOMS(CNF *tosolve, Clause *clause, enumCNF *enumeration);
+variable chooseVariableMOMS(Clause *clause, enumCNF *enumeration);
 
-variable chooseVariableJW(CNF *tosolve, Clause *clause, enumCNF *enumeration);
+variable chooseVariableJW(Clause *clause, enumCNF *enumeration);
 
-variable chooseVariableScore(CNF *tosolve, Clause *clause, enumCNF * enumeration);
+variable chooseVariableScore(Clause *clause, enumCNF * enumeration);
 
 enumCNF *countCNF(CNF *cnf,int maxSize);
 

@@ -43,6 +43,8 @@ variable chooseVariableJW(Clause *clause, enumCNF *enumeration);
 
 variable chooseVariableScore(Clause *clause, enumCNF * enumeration);
 
+variable chooseVariableModif(Clause *clause, unsigned int * modif);
+
 enumCNF *countCNF(CNF *cnf,int maxSize);
 
 void dispEnumCNF(enumCNF *countCNF);

@@ -15,6 +15,8 @@ void dispMinisatOutput(Clause *solution, Grid *grid);
 
 void writeDimacs(char *fileName,CNF *toWrite, unsigned int toAdd);
 
+bool inClause(Clause *c,Literal l);
+
 CNF * SATto3SAT(Clause *c, unsigned int *tailleCNF );
 
 #endif //INF432_DIMACS_H

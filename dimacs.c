@@ -6,6 +6,7 @@
 #include <string.h>
 #include "dimacs.h"
 #include "logic.h"
+#include "generation.h"
 
 void commentPartInspection(FILE *f)
 {
@@ -40,6 +41,15 @@ void commentPartInspection(FILE *f)
             isComment = false;
         }
     }
+}
+
+bool inClause(Clause *c,Literal l){
+    CellLiteral *curr = c->tete;
+    while(curr!=NULL){
+        if(curr->x.x == l.x && curr->x.sign == l.sign) return true;
+        curr = curr->suivant;
+    }
+    return false;
 }
 
 CNF *readDimacs(char *fileName){
@@ -111,7 +121,7 @@ CNF *readDimacs(char *fileName){
 
             if(feof(f) == 0){
                 l.x = litteralVal;
-                addToClause(curr,l,false);
+                if(!inClause(curr,l) )addToClause(curr,l,false);
             } else if (curr->taille != 0) {
                 addToCNF(res,curr);
             }

@@ -13,8 +13,8 @@ typedef struct assignation {
 } Assignation;
 
 typedef struct enumCNF {
-    int *occurence;
-    int *sumSize;
+    int *valueComputed;
+    float *sumSize;
     int size;
     int totalSum;
 } enumCNF;
@@ -37,11 +37,13 @@ Clause *unsatisfiedClause(CNF *toSolve, Assignation *v);
 
 bool isModelCNF(CNF *toSolve,Assignation *v);
 
-variable chooseVariableMOMS(CNF *tosolve, Clause *clause);
+variable chooseVariableMOMS(CNF *tosolve, Clause *clause, enumCNF *enumeration);
 
-variable chooseVariableJW(CNF *tosolve, Clause *clause);
+variable chooseVariableJW(CNF *tosolve, Clause *clause, enumCNF *enumeration);
 
-enumCNF *countCNF(CNF *cnf,Clause *clause,int maxSize);
+variable chooseVariableScore(CNF *tosolve, Clause *clause, enumCNF * enumeration);
+
+enumCNF *countCNF(CNF *cnf,int maxSize);
 
 void dispEnumCNF(enumCNF *countCNF);
 

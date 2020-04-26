@@ -12,8 +12,9 @@ int main(int argc,char *argv[]){
     CNF *res;
     Assignation *model;
     // ouverture du fichier nom_f en lecture
-    if(argc!=2){
-        printf("Usage commande : ./main fichier.sat\n");
+
+    if(argc!=3){
+        printf("Usage commande : ./main file.cnf file.res\n");
         return 1;
     }
     srand(time(NULL));
@@ -21,7 +22,6 @@ int main(int argc,char *argv[]){
     res = readDimacs(argv[1]);
     model = WalkSat(res);
 
-    if(model == NULL) printf("No model found");
-    else dispAssignation(model);
+    writeAssignation(argv[2],model);
     detruireCNF(res);
 }

@@ -85,8 +85,8 @@ CNF *readDimacs(char *fileName){
     }
     free(line);
 
-    printf("Number of variables : %d\n",cardVar);
-    printf("Number of clauses : %d\n",cardClause);
+    //printf("Number of variables : %d\n",cardVar);
+    //printf("Number of clauses : %d\n",cardClause);
 
     /* cnf lecture */
     CNF * res = newCNF();
@@ -149,8 +149,8 @@ Clause *readMinisatOut(char *fileName){
     /* problem line */
     char *line = (char *) malloc(sizeof(char)*7);
     fgets(line, 6, f);
-    if(strcmp(line, "UNSAT")==0){
-        printf("No solution was found by minisat\n");
+    if(strcmp(line, "UNSAT")==0 || strcmp(line, "undef")==0){
+        printf("No solution was found\n");
         exit(1);
     }
     free(line);
@@ -187,7 +187,7 @@ Clause *readMinisatOut(char *fileName){
         }
 
     }
-
+    fclose(f);
     return res;
 }
 

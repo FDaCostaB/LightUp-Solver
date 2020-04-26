@@ -27,6 +27,8 @@ enumCNF *initEnumCNF(unsigned int size);
 
 void dispAssignation(Assignation *model);
 
+void writeAssignation(char *fileName, Assignation *model);
+
 int countClause(Clause *c,variable x);
 
 bool belongClause(Clause *c,variable x);

@@ -155,26 +155,33 @@ enumCNF *scoreLitCNF(CNF *cnf){ // ValueComputed = score
 variable chooseVariableJW(Clause *clause, enumCNF *enumeration){ //valueComputed = occurence
     float actualProp = 0;
     CellLiteral *currLit = clause->tete;
-    int totalClauseSum = 0;
+    float clauseInverseSum = 0;
+    int sum = 0;
     while(currLit != NULL){
-        totalClauseSum += (int) enumeration->sumSize[currLit->x.x-1];
+        sum += (int) enumeration->sumSize[currLit->x.x-1];
         currLit = currLit->suivant;
     }
-    float pick = (float) totalClauseSum / (float) (rand()%totalClauseSum);
-    //afficherClause(clause);
-    //printf("Pick : %d / %.1f = %f \n", totalClauseSum, (float) totalClauseSum / pick, pick);
-    //printf("Sum : %d\n",totalClauseSum);
     currLit = clause->tete;
     while(currLit != NULL){
-        actualProp += (float) enumeration->sumSize[currLit->x.x-1];
-        //printf("actualProp : %d / %.1f\n",totalClauseSum,actualProp);
-        if (actualProp !=0 && pick > (float) totalClauseSum / actualProp){
+        clauseInverseSum += (float) sum/enumeration->sumSize[currLit->x.x-1];
+        currLit = currLit->suivant;
+    }
+    //float pick = (float) totalClauseSum / (float) (rand()%totalClauseSum);
+    float pick = (( (float)rand()/(float)RAND_MAX ) * (float)(clauseInverseSum));
+    //afficherClause(clause);
+    //printf("Pick : %f \n", pick);
+    //printf("Sum : %d Sum of inverse : %.1f\n",sum,clauseInverseSum);
+    currLit = clause->tete;
+    while(currLit != NULL){
+        actualProp += (float) sum / enumeration->sumSize[currLit->x.x-1];
+        //printf("actualProp : %.1f\n", actualProp);
+        if (actualProp !=0 && pick < (float) actualProp){
             //printf("Chosen : %d\n",currLit->x.x);
             return (variable) currLit->x.x;
         }
         currLit = currLit->suivant;
     }
-    printf("Error no variable choose in JW heuristics\n");
+    printf("ERROR : No variable choose in JW heuristics\n");
     exit(1);
 }
 
@@ -275,7 +282,7 @@ void writeAssignation(char *fileName, Assignation *model){
 void dispEnumCNF(enumCNF *countCNF){
     printf("\n");
     for(int i=0; i<countCNF->size;i++){
-        printf(" { %d : valueComputed : %d ,sum of size of clause : %.1f } \n", i+1, countCNF->valueComputed[i], countCNF->sumSize[i]);
+        printf(" { %d : valueComputed : %d ,size of clause : %.1f } \n", i+1, countCNF->valueComputed[i], countCNF->sumSize[i]);
     }
     printf("Total sum : %.d\n",countCNF->totalSum);
 }
@@ -294,7 +301,7 @@ Assignation *WalkSat(CNF *toSolve){
     enumCNF *enumeration = countCNF(toSolve,-1); // JW => maxSize = -1 // MOMS => maxSize = 2
     //enumCNF *enumeration = scoreLitCNF(toSolve);
     //afficherCNF(toSolve);
-    //dispEnumCNF(enumeration);
+    dispEnumCNF(enumeration);
     while(!isModelCNF(toSolve,v) && i < N){
         q = (float)rand()/(float)(RAND_MAX);
         unsatisfied = unsatisfiedClause(toSolve,v);

@@ -1,0 +1,344 @@
+\documentclass[a4paper]{article} 
+% class of output file {report,article or book}
+\usepackage[dvipsnames,svgnames,table]{xcolor} 
+% xcolor is the package between braces and between brackets is the option that we want to use
+\usepackage{fancyhdr}
+\usepackage[color]{showkeys}
+\usepackage{etoolbox}
+\usepackage{graphicx,tabularx}
+\usepackage{mathtools}
+\usepackage{babel}
+\usepackage{scalerel,amssymb,graphicx}
+\usepackage{stackengine}
+%\usepackage{titletoc}
+
+
+\def\gridBox{\mathord{\scalebox{2}[2]{\scalerel*{\Box}{\strut}}}}
+\def\bibname{Funny References}
+\newcommand\xrowht[2][0]{\addstackgap[.5\dimexpr#2\relax]{\vphantom{#1}}}
+\definecolor{Gray}{gray}{0.85}
+
+\title{[INF432] Project - Light Up}
+\date{1st May 2020}
+\author{Da Costa Barros - Pellieux - Segransan}
+
+%% taille du papier
+\textwidth 16 true cm %writtable center zone 16 * 24 cm
+\textheight 24 true cm %writtable center zone 16 * 24 cm
+\addtolength{\hoffset}{-2.0cm}
+\addtolength{\voffset}{-1.5cm}
+
+
+%----------------- fancy headers -------------%
+
+                                                                        
+\fancyhf{}
+\fancyhead[R]{\sffamily Project Light Up}
+\fancyfoot[R]{\sffamily\small{\thepage}}
+\fancyhead[L]{\sffamily\small{[MIN-INT] Da Costa Barros - Pellieux - Segransan}}
+\fancyfoot[L]{\sffamily\small{INF432}}
+\renewcommand{\headrulewidth}{0.2pt} %0.4
+\renewcommand{\footrulewidth}{0.2pt} %0
+\addtolength{\headheight}{0.pt}
+
+\fancypagestyle{plain}{
+  \fancyhead{}
+  \renewcommand{\headrulewidth}{0pt}
+  }
+
+\begin{document} 
+
+\maketitle
+
+\pagestyle{fancy}
+\section{Rules}
+
+A grid of any size (in general a square but it is not mandatory) is composed of :
+
+\begin{center}
+$ \gridBox $ : Free Case \quad
+\begin{tabular}{|m{0.04\textwidth}|}
+\hline\xrowht{20pt}
+\cellcolor[gray]{0.5} N \\
+\hline
+\end{tabular}
+\quad / \quad
+\begin{tabular}{|m{0.04\textwidth}|}
+\hline\xrowht{20pt}
+\cellcolor[gray]{0.5} \\
+\hline
+\end{tabular} : Walls ( With or without number N going from 0 to 4)
+
+\begin{enumerate}
+\item Dispose light to enlighten all the free cases of the grid. A light enlighten all his column and line until the light touch a wall or the border of the grid
+\item A light cannot enlighten an other light
+\item It is impossible to put a light on a wall.
+\item A wall can have a number from 0 to 4. This number is indicating how many light must be placed on an adjacent$^*$ box. A wall without numbering is not constraint by this kind of rules.
+\newline Ex: In there is a number N written on the wall there should be N light directly touching his side. If there is no number, there should be any number of light directly touching his side.
+\medskip
+\newline
+$^*$Adjacent : \textit{one side shared so it is not adjacent if there is only a corner shared}
+
+\end{enumerate}
+\end{center}
+
+\section{Modelisation}
+
+\begin{center}
+We will present how we think to model the game and the Conjunctive Normal Form (CNF) associated to each rules.
+\end{center}
+
+First, we have one variable by case denoted by an integer X computed as following $(x+y*width)+1$ (x and y starting from 0). Hence X $ \epsilon $ [1,width*height] and it will be easier to write in DIMACS format as propositional variable must be greater or equal to 1 in this format . If X is true then : “There is a light in the case of coordinate (x, y)”. We have one variable by case to know if we could put a light or not in each case.
+We call each horizontal(resp. vertical) interval with free cases without wall, starting from a wall / the border of the grid to a wall / the border of the grid, a sub line(resp. row).
+
+\begin{enumerate}
+
+	\item \underline{Rule n°1:}
+	\medskip
+	\newline
+	
+		\begin{tabular}{|m{0.05\textwidth}|m{0.05\textwidth}|m{0.05\textwidth}|m{0.05\textwidth}|m{0.05\textwidth}|m{0.05\textwidth}|}
+        \hline
+         \cellcolor[gray]{0.5} &   &   &   &   &   \\[1ex]
+         \cellcolor[gray]{0.5} 1 & 2 & 3 & 4 & 5 & 6 \\[2ex]
+        \hline
+            &   & \cellcolor[gray]{0.5}   &   &   &   \\[1ex]
+          7 & 8 & \cellcolor[gray]{0.5} 9 & 10 & 11 & 12 \\[2ex]
+        \hline
+      \end{tabular}
+
+\textit{A grid example with their respetive propositional logic varaible number}
+
+\newpage
+
+Take the first line. To represent the fact that the grid must be fill by light there should be at least one on any sub row/line : 
+\begin{center}
+\textcolor{red}{$ (1 \lor 2 \lor 3 \lor 4 \lor 5 \lor 6) $}
+\end{center} 
+	\item \underline{Rule n°2:}
+	\medskip
+	\newline
+
+To represent the fact that a light could not enlighten. There should be no more than one light on any sub row/line : 
+\begin{center}
+\textcolor{blue}{$ (\neg1 \lor \neg2) \land (\neg1 \lor \neg 3) \land (\neg 1\lor \neg 4) \land (\neg1\lor \neg5) \land (\neg1 \lor \neg 6) \land (\neg 2 \lor \neg 3) \land (\neg2 \lor \neg 4) \land (\neg 2 \lor \neg5) \newline \land (\neg2 \lor \neg6) \land (\neg3 \lor \neg4) \land (\neg3 \lor \neg5) \land (\neg3 \lor \neg6)  \land (\neg 4 \lor \neg 5) \land (\neg 4 \lor \neg 6)\land(\neg5 \lor \neg6)$}
+\end{center} 
+
+Modelling this example we distinguish two parts, the red one that assure that there will be one light on a sub line and the blue one that prevent to have two light on a sub line. We denote each cases of a sub line/row by 1, \dots , n and denote the set composed by those cases/numbers C.To have the general formula (in Boolean algebra) we have to exclude two by two each pair and to have big clause with all the elements of C. 
+
+$$ \prod_{ (i,j) \epsilon C} ( \bar{i} + \bar{j} ) * \sum_{i \epsilon C} i$$
+
+	\item \underline{Rule n°3 :}
+	\medskip
+	\newline
+
+	\begin{enumerate}
+	 \item The most obvious rule to model is the rule n°3 . If there is a wall empty or not on the case X we had the clause $\neg X$ to our final CNF. (or $\bar{X}$).
+  	 \item Now, it last to model the walls with number and using some exclusions formulas.
+	\end{enumerate}
+
+	\item \underline{Rule n°4 :}
+	\medskip
+	\newline
+
+
+\textit{As explain before, we will simply call the top, left, right and bottom respectively 2,4,6 and 8. We consider this sub case as only neighbourhood box matter.}
+
+\begin{center}
+	\begin{tabular}{|m{0.05\textwidth}|m{0.05\textwidth}|m{0.05\textwidth}|}
+        \hline
+            &   &      \\[1ex]
+          1 & 2 & 3  \\[2ex]
+        \hline
+            & \cellcolor[gray]{0.5}   &   \\[1ex]
+          4 & \cellcolor[gray]{0.5} N & 6 \\[2ex]
+        \hline
+            &   &   \\[1ex]
+          7 & 8 & 9 \\[2ex]
+        \hline
+      \end{tabular}
+\end{center}
+
+In this context we have 5 cases (but it’s like we have only 3) and their formulas.
+\begin{enumerate}
+\item For N = 0 :  \quad $ \neg2 \land \neg4 \land \neg6 \land \neg8 $ 
+ which is a CNF with each clause containing one variable.
+\newline
+\item Symmetrically, for N = 4 : \quad $ 2 \land 4 \land 6 \land 8 $
+\item For N = 1, \newline
+\begin{center}
+$ ( 1 \lor 2 \lor 3 \lor 4) \land \textcolor{blue}{( \neg 1 \lor \neg 2 \lor \neg 3 \lor \neg 4)}  \land $ \newline
+$\textcolor{ForestGreen}{( 1 \lor \neg 2 \lor \neg 3 \lor \neg 4 ) \land  ( \neg 1 \lor 2 \lor \neg 3 \lor \neg 4 ) \land ( \neg 1 \lor \neg 2 \lor 3 \lor \neg 4 ) \land ( \neg 1 \lor \neg 2 \lor \neg 3 \lor 4 )} \land $ \newline
+$\textcolor{red}{( \neg 1 \lor \neg 2 \lor 3 \lor 4) \land ( \neg 1 \lor 2 \lor \neg 3 \lor 4 ) \land ( \neg 1 \lor 2 \lor 3 \lor \neg 4 ) \land ( 1 \lor \neg 2 \lor \neg 3 \lor 4 ) \land ( 1 \lor \neg 2 \lor 3 \lor \neg 4 ) \land} $ \newline $\textcolor{red}{ ( 1 \lor 2 \lor \neg 3 \lor \neg 4 )} $
+\end{center}
+
+On the one hand the black assure at least one is true. On the other hand, the blue parts assure that there is not 4 light adjacent to the case. Green is killing the model with three light and red the one with 2 light.
+\item For N=3,  only the green part is inverted and this give :\newline
+\begin{center}
+$ ( 1 \lor 2 \lor 3 \lor 4) \land \textcolor{blue}{( \neg 1 \lor \neg 2 \lor \neg 3 \lor \neg 4)}  \land $ \newline
+$\textcolor{OliveGreen}{( \neg 1 \lor 2 \lor 3 \lor 4 ) \land  ( 1 \lor \neg 2 \lor 3 \lor 4 ) \land ( 1 \lor 2 \lor \neg 3 \lor 4 ) \land ( 1 \lor 2 \lor 3 \lor \neg 4 )} \land $ \newline
+$\textcolor{red}{( \neg 1 \lor \neg 2 \lor 3 \lor 4) \land ( \neg 1 \lor 2 \lor \neg 3 \lor 4 ) \land ( \neg 1 \lor 2 \lor 3 \lor \neg 4 ) \land ( 1 \lor \neg 2 \lor \neg 3 \lor 4 ) \land ( 1 \lor \neg 2 \lor 3 \lor \neg 4 ) \land} $ \newline $\textcolor{red}{ ( 1 \lor 2 \lor \neg 3 \lor \neg 4 )} $
+\end{center}
+\item Finally, for N = 2, it re-use the same patterns: \newline
+\begin{center}
+$ ( 1 \lor 2 \lor 3 \lor 4) \land \textcolor{blue}{( \neg 1 \lor \neg 2 \lor \neg 3 \lor \neg 4)}  \land $ \newline 
+$\textcolor{OliveGreen}{( \neg 1 \lor 2 \lor 3 \lor 4 ) \land  ( 1 \lor \neg 2 \lor 3 \lor 4 ) \land ( 1 \lor 2 \lor \neg 3 \lor 4 ) \land ( 1 \lor 2 \lor 3 \lor \neg 4 )} \land $ \newline $\textcolor{ForestGreen}{( 1 \lor \neg 2 \lor \neg 3 \lor \neg 4 ) \land  ( \neg 1 \lor 2 \lor \neg 3 \lor \neg 4 ) \land ( \neg 1 \lor \neg 2 \lor 3 \lor \neg 4 ) \land ( \neg 1 \lor \neg 2 \lor \neg 3 \lor 4 )} \land $
+\end{center}
+We have to be careful during programming to not add a case outside the grid. We just have to ignore it and to exclude with the same kind of technique shown before but in environment where the size of A is 2 or 3 (there can be only 2 out for a size of grid superior to 2). As we don't want to compute value for case outside of the grid which implies to consider a grid of (width + 1) * (height +1) and consider the border case as wall. The program will stop and generate a basic unsolvable CNF ( $\neg 1 \land 1 $ ). The problem here is why consider a more complicate grid for each instance of the problem instead of just get rid of this simple problem by exclude it during programming computations. 
+
+\end{enumerate}
+\# \\
+\# \\
+\# \\
+\# \\
+\# \\
+BUT WHAT IF THERE LESS THAN ADJACENT BOX \\
+\# \\
+\# \\
+\# \\
+\# \\
+\# \\
+\end{enumerate}
+
+\section{Modeling the problem using first order logic}
+\textit{Small remember the index of box at coordinate (x,y) is calculated as follow : $i = (x+y*width)+1$}
+Relation SubC(i, j) is true if and only if i and j is in the same sub column. Similarly, SubR(i, j) is true if and only if i and j is in the same sub row. Another relation needed is W(i) which is true if and only if case of index i is a Wall (with or without number).  The constraints of the problems are modelled as follows :
+\begin{itemize}
+\item Dispose light to enlighten all the free cases of the grid :
+\begin{tabular}{c}
+$ \forall i, \exists j, SubC(i, j) \Rightarrow j $ \\
+$ \forall i, \exists j, SubR(i, j) \Rightarrow j $
+\end{tabular}
+
+\item A light cannot enlighten an other light :
+\begin{tabular}{c}
+$ \forall i, \forall j, ( SubC(i, j) \land ( i \neq j) \Rightarrow \neg i \land \neg j ) $ \\
+$ \forall i, \forall j, ( SubR(i, j) \land ( i \neq j) \Rightarrow \neg i \land \neg j ) $ \\
+\end{tabular}
+\item It is impossible to put a light on a wall :
+$ \forall i, ( W(i) \Rightarrow \neg i ) $
+
+\item A wall can have a number from 0 to 4. This number is indicating how many light must be placed on an adjacent box. A wall without numbering is not constraint by this kind of rules : \newline
+We can introduce a new function which map a wall to the number written on it, we call it N. Moreover, functions A(i), B(i), L(i), R(i) correspond respectively to the index of the above box, to the index of the bellow box, to the index of the left box and to the index of the right box. \newline
+\begin{itemize}
+\item $ \forall i ( W(i) \land N(i)=0 \Rightarrow  \neg A(i) \land \neg B(i) \land \neg L(i) \land \neg R(i) )$  \\
+
+
+\item $ \forall i ( W(i) \land N(i)=1 \Rightarrow  ( A(i) \lor B(i) \lor L(i) \lor R(i) ) \land \textcolor{blue}{( \neg A(i) \lor \neg B(i) \lor \neg L(i) \lor \neg R(i))}  \land $ \\
+$\textcolor{ForestGreen}{( \neg A(i) \lor B(i) \lor L(i) \lor R(i) ) \land  ( A(i) \lor \neg B(i) \lor L(i) \lor R(i) ) \land }$ \\
+$ \textcolor{ForestGreen}{( A(i) \lor B(i) \lor \neg L(i) \lor R(i) ) \land ( A(i) \lor B(i) \lor L(i) \lor \neg R(i) )} \land $ \\
+$\textcolor{red}{( \neg A(i) \lor \neg B(i) \lor L(i) \lor R(i)) \land ( \neg A(i) \lor B(i) \lor \neg L(i) \lor R(i) ) \land ( \neg A(i) \lor B(i) \lor L(i) \lor \neg R(i) )\land } $ \\ 
+$ \textcolor{red}{ ( A(i) \lor \neg B(i) \lor \neg L(i) \lor R(i) ) \land ( A(i) \lor \neg B(i) \lor L(i) \lor \neg R(i) ) \land ( A(i) \lor B(i) \lor \neg L(i) \lor \neg R(i) ) }) $  \\
+
+
+\item $ \forall i ( W(i) \land N(i)=2 \Rightarrow (\neg A(i) \land \neg B(i) \land \neg L(i) \land \neg R(i)) \land ( A(i) \land B(i) \land L(i) \land R(i) ) )$  \\
+$\textcolor{ForestGreen}{( \neg A(i) \lor B(i) \lor L(i) \lor R(i) ) \land  ( A(i) \lor \neg B(i) \lor L(i) \lor R(i) ) \land }$ \\
+$ \textcolor{ForestGreen}{( A(i) \lor B(i) \lor \neg L(i) \lor R(i) ) \land ( A(i) \lor B(i) \lor L(i) \lor \neg R(i) )} \land $ \\
+$\textcolor{OliveGreen}{( A(i) \lor \neg B(i) \lor \neg L(i) \lor \neg R(i) ) \land  ( \neg A(i) \lor B(i) \lor \neg L(i) \lor \neg R(i) ) \land }$ \\
+$ \textcolor{OliveGreen}{( \neg A(i) \lor \neg B(i) \lor L(i) \lor \neg R(i) ) \land ( \neg A(i) \lor \neg B(i) \lor \neg L(i) \lor R(i) )} ) $ \\
+
+
+\item $ \forall i ( W(i) \land N(i)=3 \Rightarrow  ( A(i) \lor B(i) \lor L(i) \lor R(i) ) \land \textcolor{blue}{( \neg A(i) \lor \neg B(i) \lor \neg L(i) \lor \neg R(i))}  \land $ \\
+$\textcolor{OliveGreen}{( A(i) \lor \neg B(i) \lor \neg L(i) \lor \neg R(i) ) \land  ( \neg A(i) \lor B(i) \lor \neg L(i) \lor \neg R(i) ) \land }$ \\
+$ \textcolor{OliveGreen}{( \neg A(i) \lor \neg B(i) \lor L(i) \lor \neg R(i) ) \land ( \neg A(i) \lor \neg B(i) \lor \neg L(i) \lor R(i) )} \land $ \\
+$\textcolor{red}{( \neg A(i) \lor \neg B(i) \lor L(i) \lor R(i)) \land ( \neg A(i) \lor B(i) \lor \neg L(i) \lor R(i) ) \land ( \neg A(i) \lor B(i) \lor L(i) \lor \neg R(i) )\land } $ \\ 
+$ \textcolor{red}{ ( A(i) \lor \neg B(i) \lor \neg L(i) \lor R(i) ) \land ( A(i) \lor \neg B(i) \lor L(i) \lor \neg R(i) ) \land ( A(i) \lor B(i) \lor \neg L(i) \lor \neg R(i) )} ) $  \\
+
+
+\item $ \forall i ( W(i) \land N(i)=4 \Rightarrow A(i) \land B(i) \land L(i) \land R(i) )$  
+\end{itemize}
+\end{itemize}
+\section{Resolution by a SAT-solver}
+
+We solve using minisat and reading the result file. The format of the result is the following.
+The first line is "SAT" or "UNSAT".
+If it is "UNSAT", there is no solution to the problem and nothing is following.
+If it is "SAT", the following line give the solution. There is a assignation for each variable i separated by space. If it is "i" it means it's true in the model found, if it's "-i" it's means the variable is false in the model found.
+Reading the output file, for each box, we put a lamp on it box if his index i is true in the model and we display the corrected grid.\newline
+
+\textit{Example of output for solvable 3 by 3 grid}
+\begin{verbatim}
+SAT
+-1 -2 3 4 -5 -6 -7 8 -9 0
+
+\end{verbatim}
+
+\textit{Example of output for unsolvable}
+\begin{verbatim}
+UNSAT
+
+\end{verbatim}
+
+\section{Optional part : SAT solver}
+
+We use the same algorithm describe in the project description (WalkSat).\\
+\# \\
+\# \\
+\# \\
+\# \\
+\# \\
+MORE DETAIL \\
+\# \\
+\# \\
+\# \\
+\# \\
+\# \\
+
+For the output, we copy the same format as the Minisat output to just replace it and keep the same executable to display the correction.
+
+\section{Random generation}
+\begin{center}
+ \# : Empty wall \qquad 0,1,2,3,4 : Numbered walls  \newline \_ : Free case \qquad   . : Case that should be empty (Cleared after generation)
+\end{center}
+We have a generator of grid coded in C that is working nearly good the two problem is that if we asked a not that high density of a wall it will give an unsolvable grid. In fact, the proportion of solvable grid depend on the density asked. The real problem is that we don't check that each box can be enlighten and we only focus on numbered wall which is the source of a lot of unsolvable grid if not handled. We can have this kind of pattern for example making the grid unsolvable :
+\begin{center}
+\#\_ \\
+\_1 \\
+\#\_ \\
+\end{center}
+
+
+As we need, to light the 3 case putting a lamp on them but we can only put one lamp on the 3 free boxes. Our generator allow that as we can put 1 lamp next to the 1 wall but don't verify that we could light all the grid.
+
+Finally, the grid is not completely solved at the end of the generator only the part with wall it is and just have to remove the light from the grid to make it playable. 
+Here is some grid at different size generated: 
+\newline
+
+\begin{tabular}{c c}
+
+
+Density : 0.3 Size : 7 (solvable)& Density : 0.3 Size : 7 (solvable)  \\
+\_ \_ \_ \_ \_  1 \_			& \_ \_ \_ \_ 3 \_ \_ 		\\
+\_  0 \_  0 \_ \_ \_			& \_ \_ \_ \# \_ \_ \_		\\
+\_ \_  0 \_ \_ \_ \_			& \_ \_ \_ \_ \_ \_ \_		\\
+\_ \_ \_ \_ \_ \_  3			& \_ \_ \_  0 \_ \_ \_		\\
+\_ \_ \_ \_ \_ \_ \_			& \_ \_  1 \_ \# \_ \_		\\
+\_ \_ \_ \_ \_ \# \_			&  1 \_ \_ \_ \_ \# \_		\\
+\_ \_ \_ \_ \_ \_ \_			& \_ \_ \_ \_ \# \_ \_		\\
+
+
+Density : 0.4 Size : 7 (unsolvable) & Density : 0.1 Size : 20 (Solvable generated after several attempt) \\
+ 2 \_ \_ \_ \_ \_ \_ 			& \_ \_ \_ \_ \# \# 1 \_ 1 \_ \_ \_ \_ \# \_ \_ \_ \_ \_ \_ \\
+\_ \_  0 \_  0 \_ \_ 			& \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ 0 \_ \_ \_ 0 \_ \_ \_ \_ \_ \\
+\_ \_ \_  1 \_ \_  2 			& \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \\
+ 0 \_ \_ \_ \_ \# \_ 			& \_ \_ \_ \_ \_ 0 \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ 0 \_ \_ \_ \\
+\_ \# \_  1 \_ \# \_ 			& \_ \_ \_ \_ \_ \_ \# 1 \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \\
+\_ \_  0 \_  2 \_ \# 			& \_ \_ \_ \_ \_ 0 \_ \_ \_ \_ \_ 0 \_ \_ \_ \_ \_ \_ \_ \_ \\
+ 1 \_ \_ \_ \_ \# \# 			& \_ \_ \_ \_ 1 \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \\
+ 								& \_ 0 \_ \_ \_ \_ \_ \_ \_ \_ \# \_ \_ \_ \_ \_ \_ \_ \_ \_ \\
+ 								& \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \\
+ 								& \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ 0 \_ \_ \\
+ 								& \_ \_ \_ \# \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \\
+ 								& \_ \_ \_ \_ \# \_ \_ \_ \_ \_ 0 \_ \_ 0 \_ \_ 0 \_ \_ \_ \\
+ 								& \_ \_ \_ \_ \_ \_ \_ \# \# \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \\
+ 								& \_ \_ \_ 0 \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \\
+ 								& \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ 0 \_ \_ \_ \_ \_ \_ \_ \\
+ 								& 0 \_ \_ \_ \_ \_ 0 \_ \_ \_ \_ \_ \_ \_ \_ \_ 0 \_ \_ \# \\
+ 								& \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ 0 \_ \# \\
+ 								& \_ \_ \_ 0 \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \\
+ 								& \_ \_ \_ \_ \_ \# \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ \\
+ 								& \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ 2 \_ \_ \_ \_ \_ \_ \_ \_ \_ \\
+
+\end{tabular}
+
+\end{document}

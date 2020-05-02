@@ -410,6 +410,12 @@ CNF* cnfOfBox(Grid *grid, int i){
             default:
                 break;
         }
+        if( (int) adj->taille < numWall && numWall !=-1){
+            toAdd = newClause();
+            addToClause(toAdd,(Literal){ i, PLUS},false);
+            addToCNF(res,toAdd);
+            return res;
+        }
         if(numWall != 0 && numWall - adj->taille !=0 && numWall !=-1){
             for(int i=0;i<=adj->taille;i++){
                 if(i!=numWall){

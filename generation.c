@@ -480,6 +480,10 @@ Grid *readGrid(char *fileName) {
     FILE *f;
     int i, j, sizeOfGrid;
     f = fopen(fileName, "r");
+    if (f == NULL){
+        printf("ERROR : Impossible file opening \n");
+        exit(1);
+    }
 
     fscanf(f,"%d\n", &sizeOfGrid);
     char *g = (char *) malloc(sizeof(char)*(sizeOfGrid+1));

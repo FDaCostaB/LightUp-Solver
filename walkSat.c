@@ -24,4 +24,5 @@ int main(int argc,char *argv[]){
 
     writeAssignation(argv[2],model);
     detruireCNF(res);
+    if(model!=NULL) freeAssignation(model);
 }

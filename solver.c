@@ -277,6 +277,7 @@ void writeAssignation(char *fileName, Assignation *model){
         }
         fprintf(f,"0\n");
     }
+    fclose(f);
 }
 
 void dispEnumCNF(enumCNF *countCNF){
@@ -285,6 +286,17 @@ void dispEnumCNF(enumCNF *countCNF){
         printf(" { %d : valueComputed : %d ,size of clause : %.1f } \n", i+1, countCNF->valueComputed[i], countCNF->sumSize[i]);
     }
     printf("Total sum : %.d\n",countCNF->totalSum);
+}
+
+void freeEnumCNF(enumCNF *enumeration){
+    free(enumeration->valueComputed);
+    free(enumeration->sumSize);
+    free(enumeration);
+}
+
+void freeAssignation(Assignation *v){
+    free(v->tab);
+    free(v);
 }
 
 Assignation *WalkSat(CNF *toSolve){
@@ -298,28 +310,33 @@ Assignation *WalkSat(CNF *toSolve){
     }
     //if(toSolve = NULL); A PRENDRE EN COMPTE
     Assignation *v = newRandomAssignation(toSolve->nbVar);
-    enumCNF *enumeration = countCNF(toSolve,-1); // JW => maxSize = -1 // MOMS => maxSize = 2
-    //enumCNF *enumeration = scoreLitCNF(toSolve);
+    //enumCNF *enumeration = countCNF(toSolve,-1); // JW => maxSize = -1 // MOMS => maxSize = 2
+    enumCNF *enumeration = scoreLitCNF(toSolve);
     //afficherCNF(toSolve);
-    dispEnumCNF(enumeration);
+    //dispEnumCNF(enumeration);
     while(!isModelCNF(toSolve,v) && i < N){
         q = (float)rand()/(float)(RAND_MAX);
         unsatisfied = unsatisfiedClause(toSolve,v);
         if (q < P){
             toFlip = drawVariable(unsatisfied);
         }else{
-            toFlip = chooseVariableJW(unsatisfied, enumeration);
+            //toFlip = chooseVariableJW(unsatisfied, enumeration);
             //toFlip = chooseVariableMOMS(unsatisfied, enumeration);
-            //toFlip = chooseVariableScore(unsatisfied, enumeration);
+            toFlip = chooseVariableScore(unsatisfied, enumeration);
             //toFlip = chooseVariableModif(unsatisfied, modifiedVar);
         }
         flipInAssignation(toFlip,v);
         modifiedVar[toFlip-1] ++;
         i++;
     }
+
+    freeEnumCNF(enumeration);
+    free(modifiedVar);
+
     if(isModelCNF(toSolve,v)){
         return v;
     }else{
+        freeAssignation(v);
         return NULL;
     }
     //LIBERER ENUMERATION (+ SES TABLEAUX), ASSIGNATION (+ SON TABLEAU) ET TAB MODIFVar

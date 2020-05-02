@@ -124,6 +124,8 @@ CNF *readDimacs(char *fileName){
                 if(!inClause(curr,l) )addToClause(curr,l,false);
             } else if (curr->taille != 0) {
                 addToCNF(res,curr);
+            } else if (curr->taille == 0){
+                detruireClause(curr);
             }
 
         }
@@ -151,7 +153,9 @@ Clause *readMinisatOut(char *fileName){
     fgets(line, 6, f);
     if(strcmp(line, "UNSAT")==0 || strcmp(line, "undef")==0){
         printf("No solution was found\n");
-        exit(1);
+        free(line);
+        fclose(f);
+        return NULL;
     }
     free(line);
 
@@ -167,6 +171,7 @@ Clause *readMinisatOut(char *fileName){
             fscanf(f,"%c",&scanned);
         }
         if(scanned == '0'){
+            fclose(f);
             return res;
         }else {
             if(scanned == '-'){

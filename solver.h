@@ -51,6 +51,10 @@ enumCNF *countCNF(CNF *cnf,int maxSize);
 
 void dispEnumCNF(enumCNF *countCNF);
 
+void freeAssignation(Assignation *v);
+
+void freeEnumCNF(enumCNF *enumeration);
+
 Assignation *WalkSat(CNF *toSolve);
 
 #endif //INF432_SOLVER_H

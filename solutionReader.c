@@ -25,9 +25,13 @@ int main(int argc, char *argv[]) {
     printf("--Solution of the grid --\n\n");
 
     res = readMinisatOut(argv[2]);
-    dispMinisatOutput(res,grid);
-
-    detruireClause(res);
-    free(grid->tab);
-    free(grid);
+    if(res == NULL){
+        free(grid->tab);
+        free(grid);
+    } else {
+        dispMinisatOutput(res,grid);
+        detruireClause(res);
+        free(grid->tab);
+        free(grid);
+    }
 }

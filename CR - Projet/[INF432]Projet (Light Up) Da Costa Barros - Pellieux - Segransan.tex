@@ -111,9 +111,9 @@ We call each horizontal(resp. vertical) interval with free cases without wall, s
 
 \newpage
 
-Take the first line. To represent the fact that the grid must be fill by light there should be at least one on any sub row/line : 
+Take the first line. To represent the fact that the grid must be fill by light there should be at least one on any sub row or sub line : 
 \begin{center}
-\textcolor{red}{$ (1 \lor 2 \lor 3 \lor 4 \lor 5 \lor 6) $}
+$$ \textcolor{red}{\sum_{i \epsilon Sline \cup Srow} i} $$
 \end{center} 
 	\item \underline{Rule n°2:}
 	\medskip
@@ -124,25 +124,24 @@ To represent the fact that a light could not enlighten. There should be no more 
 \textcolor{blue}{$ (\neg1 \lor \neg2) \land (\neg1 \lor \neg 3) \land (\neg 1\lor \neg 4) \land (\neg1\lor \neg5) \land (\neg1 \lor \neg 6) \land (\neg 2 \lor \neg 3) \land (\neg2 \lor \neg 4) \land (\neg 2 \lor \neg5) \newline \land (\neg2 \lor \neg6) \land (\neg3 \lor \neg4) \land (\neg3 \lor \neg5) \land (\neg3 \lor \neg6)  \land (\neg 4 \lor \neg 5) \land (\neg 4 \lor \neg 6)\land(\neg5 \lor \neg6)$}
 \end{center} 
 
-Modelling this example we distinguish two parts, the red one that assure that there will be one light on a sub line and the blue one that prevent to have two light on a sub line. We denote each cases of a sub line/row by 1, \dots , n and denote the set composed by those cases/numbers C.To have the general formula (in Boolean algebra) we have to exclude two by two each pair and to have big clause with all the elements of C. 
+Modelling this example we distinguish two parts, the red one that assure that there will be one light on the sub line or the sub row and the blue one that prevent to have two light on a sub line. To have the general formula (in Boolean algebra) we have to exclude two by two each pair and to have big clause with all the elements of $ sub line \cup sub row $. 
 
-$$ \prod_{ (i,j) \epsilon C} ( \bar{i} + \bar{j} ) * \sum_{i \epsilon C} i$$
+$$ \textcolor{blue}{\prod_{ (i,j) \epsilon Sline \cup Srow} ( \bar{i} + \bar{j} )} * \textcolor{red}{\sum_{i \epsilon Sline \cup Srow} i}$$
 
 	\item \underline{Rule n°3 :}
 	\medskip
 	\newline
 
-	\begin{enumerate}
-	 \item The most obvious rule to model is the rule n°3 . If there is a wall empty or not on the case X we had the clause $\neg X$ to our final CNF. (or $\bar{X}$).
-  	 \item Now, it last to model the walls with number and using some exclusions formulas.
-	\end{enumerate}
+
+ The most obvious rule to model is the rule n°3 . If there is a wall empty or not on the case X we had the clause $\neg X$ to our final CNF. (or $\bar{X}$). \newline
+Now, it last to model the walls with number and using some exclusions formulas.
 
 	\item \underline{Rule n°4 :}
 	\medskip
 	\newline
 
 
-\textit{As explain before, we will simply call the top, left, right and bottom respectively 2,4,6 and 8. We consider this sub case as only neighbourhood box matter.}
+\textit{As explain before, we will simply call the top, left, right and bottom respectively 2,4,6 and 8.In a more complex grid top, left, right and bottom will respectively be calculated as following $N-width$, $N-1$, $N+1$ and $N+width$.  We consider this sub case as only neighbourhood box matter and it will simplify the formula. }
 
 \begin{center}
 	\begin{tabular}{|m{0.05\textwidth}|m{0.05\textwidth}|m{0.05\textwidth}|}
@@ -184,21 +183,17 @@ $\textcolor{red}{( \neg 1 \lor \neg 2 \lor 3 \lor 4) \land ( \neg 1 \lor 2 \lor 
 $ ( 1 \lor 2 \lor 3 \lor 4) \land \textcolor{blue}{( \neg 1 \lor \neg 2 \lor \neg 3 \lor \neg 4)}  \land $ \newline 
 $\textcolor{OliveGreen}{( \neg 1 \lor 2 \lor 3 \lor 4 ) \land  ( 1 \lor \neg 2 \lor 3 \lor 4 ) \land ( 1 \lor 2 \lor \neg 3 \lor 4 ) \land ( 1 \lor 2 \lor 3 \lor \neg 4 )} \land $ \newline $\textcolor{ForestGreen}{( 1 \lor \neg 2 \lor \neg 3 \lor \neg 4 ) \land  ( \neg 1 \lor 2 \lor \neg 3 \lor \neg 4 ) \land ( \neg 1 \lor \neg 2 \lor 3 \lor \neg 4 ) \land ( \neg 1 \lor \neg 2 \lor \neg 3 \lor 4 )} \land $
 \end{center}
-We have to be careful during programming to not add a case outside the grid. We just have to ignore it and to exclude with the same kind of technique shown before but in environment where the size of A is 2 or 3 (there can be only 2 out for a size of grid superior to 2). As we don't want to compute value for case outside of the grid which implies to consider a grid of (width + 1) * (height +1) and consider the border case as wall. The program will stop and generate a basic unsolvable CNF ( $\neg 1 \land 1 $ ). The problem here is why consider a more complicate grid for each instance of the problem instead of just get rid of this simple problem by exclude it during programming computations. 
+\end{enumerate}
+\end{enumerate}
 
-\end{enumerate}
-\# \\
-\# \\
-\# \\
-\# \\
-\# \\
-BUT WHAT IF THERE LESS THAN ADJACENT BOX \\
-\# \\
-\# \\
-\# \\
-\# \\
-\# \\
-\end{enumerate}
+In the case where there is less than 4 adjacent boxes, we consider the boxes outside the grid as a wall (by Rule 3 the variable associated to is false). As explain before, we do it during the construction of the CNF by the algorithm. We don't want to compute value for case outside of the grid which implies to consider a grid of (width + 2) * (height +2) and consider the border boxes as wall. It's more complex for each grid given to the algorithm but it still the solution for less algorithm computations and more sat solver one. The problem is why consider a more complicated grid instead of getting rid of this problem during the building of the CNF. For example, if (x,y+1) ( R(i) ) and $ y+1 > width $, we consider the same clause without the R(i) as if R(i) is false (a wall), we can just forget it as $ X \lor \perp \equiv X $. We just don't add a variable if it's outside the grid.
+
+\medskip
+
+If there is a numbered wall with not enough adjacent boxes (too much outside the grid). The program will stop and generate a basic unsolvable CNF ( $\neg i \land i $ ) as it is unsolvable. Again to avoid considering the grid surrounded by wall as it increase quickly the numbers of variables (as it depend on the height and width of the grid ).
+\newline
+
+
 
 \section{Modeling the problem using first order logic}
 \textit{Small remember the index of box at coordinate (x,y) is calculated as follow : $i = (x+y*width)+1$}
@@ -271,20 +266,78 @@ UNSAT
 
 \section{Optional part : SAT solver}
 
-We use the same algorithm describe in the project description (WalkSat).\\
-\# \\
-\# \\
-\# \\
-\# \\
-\# \\
-MORE DETAIL \\
-\# \\
-\# \\
-\# \\
-\# \\
-\# \\
+We use the same algorithm describe in the project description (WalkSat : see \ref{sec:Annexes}). Here a table summing the best heuristics and constant choice :
+\begin{table}[h!]
+\begin{center}
+	\begin{tabular}{c||c c c c c c c}
+         	$P \setminus N$ & 0  & 0.1  & 0.2  & 0.4  & 0.6 & 0.8 & 1  \\
+        	\hline
+        	\hline
+     	    100 &  \cellcolor[gray]{0.5}   &   \cellcolor[gray]{0.5}   &     \cellcolor[gray]{0.5} &   \cellcolor[gray]{0.5}   &  \cellcolor[gray]{0.5}   & \cellcolor[gray]{0.5} &  \cellcolor[gray]{0.5} \\
+     	   1000 & 775,2  & 658,2  & 767,1  & 696,1  & 677,5 & \cellcolor[gray]{0.5} &  \cellcolor[gray]{0.5} \\
+    	  10000 & 4924,4  &  4.967,3  & 5.346,6 & 5.636,1   & 6.153,2 & 6.681,1 & 6258,0  \\
+    	 100000 & 11558,6 & 10.927,4 & 12.943,6 & 19.538,3  & 30.760,3 &    44.369,4 & 58942,0  \\
+      	\end{tabular}\\
+      	\textit{Mean number of flip on 1000 executions to find a model depending on constants P and N}
+\end{center}	
+\end{table}
+      	
+\begin{table}[h!]
+\begin{center}
+\begin{tabular}{c||c c c c c c c}
+         	$P \setminus N$ & 0  & 0.1  & 0.2  & 0.4  & 0.6 & 0.8 & 1  \\
+        	\hline
+        	\hline
+     	    100 &  0   &   0   & 0     &  0   &  0  & 0   & 0  \\
+     	   1000 & 29   &  41   & 29    & 10   & 2   & 0   & 0  \\
+    	  10000 & 584  & 565   & 496   & 321  & 148 & 62  & 9  \\
+    	 100000 & 1000 & 1000  & 1000  & 1000 & 980 & 839 & 360  \\
+      	\end{tabular}\\
+      	\textit{Number of model found on 1000 executions depending on constants P and N}
+\end{center}
+\end{table}
+\newpage
+To sum up, the tables show that the number of solutions found increase with P (which is the maximum number of flip), it is instinctive that more the algorithm try more he have a chance to find a solution. About N, we can see that a small amount of random can be greater than 0 for P=100.000 but we need to keep in mind that it depend on the sample. In general, when N increase the part of random in choosing the variable to flip increase and the number of model found decrease and the mean number of flip to find a model increase. For $ N \leq 1000 $, the data about P is  not significant because we never find more than 30 model.
+
+\begin{center}
+Mean number of flip and percentage of success to find a model depending on heuristics ( P=0,1 , N=100.000, 1.000 executions )
+\end{center}
+
+\begin{table}[h!]
+\begin{center}
+\begin{tabular}{c||c c c c}
+         Heuristics & JW  & MOMS  & Score  & Least Modified  \\
+        \hline
+        \hline
+         Flip needed & 10.927,4 (100\%)  & \cellcolor[gray]{0.5} & 25.610,6 (97.5\%) & 1.071,8 (100\%)\\
+
+\end{tabular}
+\caption{3-SAT problem}
+\end{center}
+\end{table}
+
+\begin{table}[h!]
+\begin{center}
+\begin{tabular}{c||c c c c}
+         Heuristics & JW  & MOMS  & Score  & Least Modified  \\
+        \hline
+        \hline
+         Flip needed & 479,0 (100\%) & 27.064,5 (77,1\%) & 5.886,3 (100\%)  & 107,8 (100\%)\\
+
+\end{tabular}
+\caption{SAT problem}
+\end{center}
+\end{table}
+
+
+We test the program with the same problem on the different heuristics but it's 3-Sat reduced before the test of the first table. The 3-SAT reduction increase the number of variable and the number of clause but make the comparison. We see that it's harder for the algorithm to solve the 3-SAT reduced problem and we observe it on the table as for each heuristics choice the average of number of flip needed is higher on the 3-SAT problem. The interest in MOMS heuristics is reduced as there is no "small clause" they are all of size 3 and can explain his bad performance.
+We just observe that the best heuristics is the "Least modified" one when a 3SAT problem is provided. It should come from the fact that it flip the first literal encountered at first flip on a clause because nothing has been modified. The interesting variable are always the second one and it come it really fast after the first flip. Actually, this heuristics work nice with our 3-Sat reduction algorithm. Then more generally heuristics from the best to the worst are JW, MOMS and Score.
+
+\medskip
 
 For the output, we copy the same format as the Minisat output to just replace it and keep the same executable to display the correction.
+
+\newpage
 
 \section{Random generation}
 \begin{center}
@@ -340,5 +393,34 @@ Density : 0.4 Size : 7 (unsolvable) & Density : 0.1 Size : 20 (Solvable generate
  								& \_ \_ \_ \_ \_ \_ \_ \_ \_ \_ 2 \_ \_ \_ \_ \_ \_ \_ \_ \_ \\
 
 \end{tabular}
+
+\newpage
+
+\section*{Annexes}
+\label{sec:Annexes}
+
+WalkSat algorithm :
+	\begin{verbatim}
+1: Draw an assignment v at random according to a uniform distribution
+2: i = 0
+3: WHILE (v is not a model) and i < N DO
+4: Pick a clause C amongst clauses C’ such that v(C’) = false
+5: Draw a real number q in [0,1] according to a uniform distribution
+6: IF q < P THEN
+7: Pick a variable x in C according to a uniform distribution
+8: ELSE
+9: Pick a variable x in C deterministically
+10: END IF
+11: Flip the value of v(x) in the assignement v
+12: i++
+13: END WHILE
+14: IF v is a model THEN
+15: RETURN v
+16: ELSE
+17: RETURN "undecided"
+18: ENDIF
+	\end{verbatim}
+
+
 
 \end{document}

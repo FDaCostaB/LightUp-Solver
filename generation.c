@@ -389,7 +389,6 @@ void clearGrid(Grid *grid){
     }
 }
 
-
 void dispGrid(Grid *grid) {
   for (int i = 0; i < grid->taille; i++) {
     for (int j = 0; j < grid->taille; j++) {

@@ -75,6 +75,7 @@ void detruireSequencePoint(SequencePoint* seq){
     free(seq);
 }
 
+//Refactor in logic package to return a clause
 /*SequencePoint* enumSubRow(Grid* grid, point p){
     SequencePoint *res=nouvelleSequencePoint();
     point compt;

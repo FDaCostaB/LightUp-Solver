@@ -80,8 +80,6 @@ variable drawVariable(Clause *c){
         curr = curr->suivant;
         val--;
     }
-    //if (curr==NULL) NE DEVRAIT JAMAIS ARRIVER
-    //printf("Chosen : %d\n", curr->x.x);
     return curr->x.x;
 }
 
@@ -150,8 +148,6 @@ enumCNF *scoreLitCNF(CNF *cnf){ // ValueComputed = score
     return res;
 }
 
-
-//JW
 variable chooseVariableJW(Clause *clause, enumCNF *enumeration){ //valueComputed = occurence
     float actualProp = 0;
     CellLiteral *currLit = clause->tete;
@@ -166,7 +162,6 @@ variable chooseVariableJW(Clause *clause, enumCNF *enumeration){ //valueComputed
         clauseInverseSum += (float) sum/enumeration->sumSize[currLit->x.x-1];
         currLit = currLit->suivant;
     }
-    //float pick = (float) totalClauseSum / (float) (rand()%totalClauseSum);
     float pick = (( (float)rand()/(float)RAND_MAX ) * (float)(clauseInverseSum));
     //afficherClause(clause);
     //printf("Pick : %f \n", pick);
@@ -175,7 +170,7 @@ variable chooseVariableJW(Clause *clause, enumCNF *enumeration){ //valueComputed
     while(currLit != NULL){
         actualProp += (float) sum / enumeration->sumSize[currLit->x.x-1];
         //printf("actualProp : %.1f\n", actualProp);
-        if (actualProp !=0 && pick < (float) actualProp){
+        if (actualProp !=0 && pick <= (float) actualProp){
             //printf("Chosen : %d\n",currLit->x.x);
             return (variable) currLit->x.x;
         }
@@ -186,7 +181,6 @@ variable chooseVariableJW(Clause *clause, enumCNF *enumeration){ //valueComputed
 }
 
 variable chooseVariableMOMS(Clause *clause, enumCNF *enumeration){ //valueComputed = occurence
-    //afficherClause(clause);
     CellLiteral *currLit;
     variable moms = 0;
     currLit = clause->tete;
@@ -200,12 +194,10 @@ variable chooseVariableMOMS(Clause *clause, enumCNF *enumeration){ //valueComput
         }
         currLit = currLit->suivant;
     }
-    //printf("Chosen : %d\n",moms);
     return moms;
 }
 
 variable chooseVariableScore(Clause *clause, enumCNF * enumeration){ // ValueComputed = score
-    //afficherClause(clause);
     int max = enumeration->valueComputed[clause->tete->x.x-1];
     variable chosen = clause->tete->x.x;
     CellLiteral *currLit = clause->tete->suivant;
@@ -217,12 +209,10 @@ variable chooseVariableScore(Clause *clause, enumCNF * enumeration){ // ValueCom
         }
         currLit = currLit->suivant;
     }
-    //printf("Chosen : %d\n", chosen);
     return (variable) chosen;
 }
 
 variable chooseVariableModif(Clause *clause, unsigned int* modif){ // ValueComputed = score
-    afficherClause(clause);
     unsigned int min = modif[clause->tete->x.x-1];
     variable chosen = clause->tete->x.x;
     CellLiteral *currLit = clause->tete->suivant;
@@ -233,7 +223,6 @@ variable chooseVariableModif(Clause *clause, unsigned int* modif){ // ValueCompu
         }
         currLit = currLit->suivant;
     }
-    //printf("Chosen : %d\n", chosen);
     return (variable) chosen;
 }
 
@@ -299,39 +288,72 @@ void freeAssignation(Assignation *v){
     free(v);
 }
 
-Assignation *WalkSat(CNF *toSolve){
-    int i = 0, N = 1000000;
-    double q, P = 0.4;
+Assignation *WalkSat(CNF *toSolve, unsigned int mode){
+    if(toSolve == NULL) {
+        printf("WalkSat : Nothing to solve\n");
+        exit(1);
+    }
+
+    int i = 0, N = 100000;
+    double q, P = 0.1;
+
     Clause *unsatisfied;
     variable toFlip;
-    unsigned int *modifiedVar = (unsigned int *) malloc(toSolve->nbVar*sizeof(unsigned int) );
-    for(int i =0; i<toSolve->nbVar; i++){
-        modifiedVar[i]=0;
-    }
-    //if(toSolve = NULL); A PRENDRE EN COMPTE
     Assignation *v = newRandomAssignation(toSolve->nbVar);
-    //enumCNF *enumeration = countCNF(toSolve,-1); // JW => maxSize = -1 // MOMS => maxSize = 2
-    enumCNF *enumeration = scoreLitCNF(toSolve);
-    //afficherCNF(toSolve);
+    enumCNF *enumeration;
+    unsigned int *modifiedVar = NULL;
+    switch ( mode ) {
+        case 1 : //JW
+            enumeration = countCNF(toSolve,-1);
+            break;
+        case 2 : //MOMS
+            enumeration = countCNF(toSolve,2);
+            break;
+        case 3 : //score
+            enumeration = scoreLitCNF(toSolve);
+            break;
+        case 4 : //LeastModified
+            modifiedVar = (unsigned int *) malloc(toSolve->nbVar*sizeof(unsigned int) );
+            for(int i =0; i<toSolve->nbVar; i++){
+                modifiedVar[i]=0;
+            }
+            break;
+        default:
+            printf("WalkSat : No mode specified\n");
+            exit(1);
+    }
     //dispEnumCNF(enumeration);
+    //afficherCNF(toSolve);
     while(!isModelCNF(toSolve,v) && i < N){
         q = (float)rand()/(float)(RAND_MAX);
         unsatisfied = unsatisfiedClause(toSolve,v);
-        if (q < P){
+        if (q <= P){
             toFlip = drawVariable(unsatisfied);
         }else{
-            //toFlip = chooseVariableJW(unsatisfied, enumeration);
-            //toFlip = chooseVariableMOMS(unsatisfied, enumeration);
-            toFlip = chooseVariableScore(unsatisfied, enumeration);
-            //toFlip = chooseVariableModif(unsatisfied, modifiedVar);
+            switch ( mode ) {
+                case 1 : //JW
+                    toFlip = chooseVariableJW(unsatisfied, enumeration);
+                    break;
+                case 2 : //MOMS
+                    toFlip = chooseVariableMOMS(unsatisfied, enumeration);
+                    break;
+                case 3 : //score
+                    toFlip = chooseVariableScore(unsatisfied, enumeration);
+                    break;
+                case 4 : //LeastModified
+                    toFlip = chooseVariableModif(unsatisfied, modifiedVar);
+                    break;
+                default:
+                    break;
+            }
         }
         flipInAssignation(toFlip,v);
-        modifiedVar[toFlip-1] ++;
+        if (mode == 4) modifiedVar[toFlip-1] ++;
         i++;
     }
 
-    freeEnumCNF(enumeration);
-    free(modifiedVar);
+    if( (int) mode>=1 && (int) mode<=3 ) freeEnumCNF(enumeration);
+    else if (mode == 4) free(modifiedVar);
 
     if(isModelCNF(toSolve,v)){
         return v;
@@ -339,5 +361,4 @@ Assignation *WalkSat(CNF *toSolve){
         freeAssignation(v);
         return NULL;
     }
-    //LIBERER ENUMERATION (+ SES TABLEAUX), ASSIGNATION (+ SON TABLEAU) ET TAB MODIFVar
 }

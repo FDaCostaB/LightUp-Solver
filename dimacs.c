@@ -91,6 +91,8 @@ CNF *readDimacs(char *fileName){
     /* cnf lecture */
     CNF * res = newCNF();
     res->nbVar = cardVar;
+
+
     /*Each loop read a litteral */
     while(feof(f) == 0){
         litteralVal = 0;
@@ -135,7 +137,6 @@ CNF *readDimacs(char *fileName){
     }
     fclose(f);
     return res;
-
 }
 
 Clause *readMinisatOut(char *fileName){
@@ -240,9 +241,8 @@ void writeDimacs(char *fileName,CNF *toWrite, unsigned int toAdd){
     fclose(f);
 }
 
-CNF * SATto3SAT(Clause *c, unsigned int *tailleCNF ){ //CNF *cnf){
+CNF * SATto3SAT(Clause *c, unsigned int *tailleCNF ){
     if (c->taille == 1) {
-        //c->taille += 2
         Clause *newVars = newClause();
         addToClause(newVars, (Literal) {*tailleCNF + 1, PLUS}, false);
         addToClause(newVars, (Literal) {*tailleCNF + 2, PLUS}, false);

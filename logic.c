@@ -436,14 +436,12 @@ CNF* cnfOfBox(Grid *grid, int i){
     } else {
         Clause *temp;
         toAdd = enumSubRow(grid, i);
-        //addToCNF(res,toAdd);
         concat = KChosenInClause(2,toAdd,true);
         concatCNF(res,concat);
 
         temp = toAdd;
 
         toAdd = enumSubLine(grid, i);
-        //addToCNF(res,toAdd);
         concat = KChosenInClause(2,toAdd,true);
         concatCNF(res,concat);
 

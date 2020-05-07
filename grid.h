@@ -68,6 +68,12 @@ CellulePoint* nouvelleCellule (void);
  */
 void detruireCellule (CellulePoint* cel);
 
+/* Free grille and his components
+ * Condition of use : cel is a non null pointer (ERROR not handled)
+ * Result: Void
+ */
+void detruireGrid (Grid *grille);
+
 /* New SequencePoint initialize with default value
  * Condition of use : Empty
  * Result: Fresh SequencePoint

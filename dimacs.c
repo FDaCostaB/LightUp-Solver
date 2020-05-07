@@ -252,15 +252,13 @@ CNF * SATto3SAT(Clause *c, unsigned int *tailleCNF ){
         addToCNF(newCNF1,newVars);
         CellClause *curr = newCNF1->tete;
         while (curr != NULL) {
-            addToClause(curr->c, c->tete->x, false);
+            addToClause(curr->c,c->tete->x,false);
             curr = curr->suivant;
         }
         *tailleCNF = *(tailleCNF) + 2;
+        detruireClause(c);
         return newCNF1;
     }else if (c->taille == 2) {
-        //c->taille
-        //newVars = newClause()
-        //addToClause( {(CNF->nbVars)/(grille->taille*grille->taille)+1, PLUS}, newVars )
         CNF *res = newCNF();
         Clause *newClause = CopyClause(c);
         addToClause(c, (Literal){*tailleCNF + 1, PLUS}, false);
@@ -306,6 +304,8 @@ CNF * SATto3SAT(Clause *c, unsigned int *tailleCNF ){
         addToClause(Cprim, currC1->x, false);
         addToCNF(res, Cprim);
         *tailleCNF = *(tailleCNF) + c->taille -3;
+        detruireClause(c);
+        detruireClause(newVars);
         return res;
     }
 }

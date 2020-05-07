@@ -283,7 +283,8 @@ void KneglectedInClauseRec(int k, int taille, int startIndex, CellLiteral *act, 
 CNF* KneglectedInClause(int k, Clause *c){
     CNF *res = newCNF();
     if(k==0){
-        addToCNF(res,c);
+        Clause *copy = CopyClause(c);
+        addToCNF(res,copy);
         return res;
     }
     res->nbVar = c->taille;
@@ -390,7 +391,6 @@ CNF* cnfOfBox(Grid *grid, int i){
         addToClause(toAdd,l,false);
         addToCNF(res, toAdd);
         Clause *adj = enumAdj(grid->taille, i);
-        //afficherClause(adj);
         switch (grid->tab[i]) {
             case MUR0 :
                 numWall = 0;
@@ -414,6 +414,7 @@ CNF* cnfOfBox(Grid *grid, int i){
             toAdd = newClause();
             addToClause(toAdd,(Literal){ i, PLUS},false);
             addToCNF(res,toAdd);
+            detruireClause(adj);
             return res;
         }
         if(numWall != 0 && numWall - adj->taille !=0 && numWall !=-1){
@@ -432,7 +433,7 @@ CNF* cnfOfBox(Grid *grid, int i){
                 curr = curr->suivant;
             }
         }
-
+        detruireClause(adj);
     } else {
         Clause *temp;
         toAdd = enumSubRow(grid, i);

@@ -15,17 +15,20 @@ int main(int argc, char *argv[]) {
 
     CNF *toReduct,*temp;
     CNF *res=newCNF();
+    Clause *copy;
 
     toReduct = readDimacs(argv[1]);
     res->nbVar = toReduct->nbVar;
     CellClause *curr = toReduct->tete;
     while(curr!=NULL){
-        temp = SATto3SAT(curr->c,&(res->nbVar));
+        copy = CopyClause(curr->c);
+        temp = SATto3SAT(copy,&(res->nbVar));
         concatCNF(res,temp);
         curr = curr->suivant;
     }
     writeDimacs(argv[2],res,0);
 
+    detruireCNF(toReduct);
     detruireCNF(res);
     return 0;
 }

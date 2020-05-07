@@ -11,5 +11,5 @@ then
 	minisat 3res.cnf 3res.txt > minisat.output
 	./solutionReader res.grid 3res.txt
 else
-	echo ./correctRandom pourcentWall gridWidth
+	echo ./correctRandom pourcentageWall gridWidth
 fi

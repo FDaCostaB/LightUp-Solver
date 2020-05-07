@@ -1,9 +1,6 @@
-EXECUTABLES = testOfFunctions cnfMaker solutionReader gridGeneration satTo3sat walkSat
+EXECUTABLES = cnfMaker solutionReader gridGeneration satTo3sat walkSat
 
 all : $(EXECUTABLES)
-
-testOfFunctions : generation.o main.o grid.o logic.o dimacs.o solver.o
-	clang -g -Wall $^ -o $@
 
 walkSat : solver.o dimacs.o walkSat.o logic.o generation.o
 	clang -g -Wall $^ -o $@

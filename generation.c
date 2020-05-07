@@ -473,6 +473,7 @@ void writeGrid(char *fileName,Grid *grid) {
         }
         fprintf(f,"\n");
     }
+    fclose(f);
 }
 
 Grid *readGrid(char *fileName) {

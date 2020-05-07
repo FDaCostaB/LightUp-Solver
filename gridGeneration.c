@@ -22,5 +22,6 @@ int main(int argc, char *argv[]) {
     res = genere_grille(pourcentMur,taille);
     clearGrid(res);
     writeGrid(argv[3],res);
+    detruireGrid(res);
     return 0;
 }

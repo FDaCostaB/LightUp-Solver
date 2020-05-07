@@ -51,12 +51,40 @@
 \maketitle
 
 \pagestyle{fancy}
+
+\section*{Introduction}
+
+
+\begin{itemize}
+
+\item correctGrid.sh : Correct a grid file with minisat (SAT problem and his 3SAT reduction) and disp the correction.
+\newline
+Command line : \textit{./correctRandom gridFile}
+\item correctRandom.sh : Correct a random grid generated with parameters given  with minisat (SAT problem and his 3SAT reduction) and disp the correction.
+\newline
+Command line : \textit{./correctRandom pourcentageWall gridWidth}
+\item correctGridWalkSat.sh : Correct a (random) grid with the WalkSat (SAT problem and his 3SAT reduction) and minisat (3SAT reduction) to compare and disp the correction of solutions given.
+\newline
+Command line : \textit{(2 args - Correct the grid given) ./correctGridWalkSat.sh mode grid.txt}
+\newline
+\textit{(3 args - Correct a random grid) : ./correctGridWalkSat.sh mode pourcentWall gridWidth}
+\item correctRandomWalkSat.sh : Called by correctGridWalkSat.sh and do the same work with a random grid.
+\newline
+Command line : \textit{See above.}
+\item correctAllGridGiven.sh : Call correctGridWalkSat.sh with all grid file given as arguments. (Uses for test)
+
+\end{itemize}
+The format used for the grid file begin with the size S of the grid followed by S line of S character where a character represent a box. The character used for the different box are the following :
+\begin{center}
+ \# : Empty wall \qquad 0,1,2,3,4 : Numbered walls \qquad \_ : Free case
+\end{center}
+
 \section{Rules}
 
-A grid of any size (in general a square but it is not mandatory) is composed of :
+A grid of any size (always a square in our format) is composed of :
 
 \begin{center}
-$ \gridBox $ : Free Case \quad
+$ \gridBox $ : Free box \quad
 \begin{tabular}{|m{0.04\textwidth}|}
 \hline\xrowht{20pt}
 \cellcolor[gray]{0.5} N \\
@@ -70,14 +98,14 @@ $ \gridBox $ : Free Case \quad
 \end{tabular} : Walls ( With or without number N going from 0 to 4)
 
 \begin{enumerate}
-\item Dispose light to enlighten all the free cases of the grid. A light enlighten all his column and line until the light touch a wall or the border of the grid
-\item A light cannot enlighten an other light
+\item Dispose light to enlighten all the free boxes of the grid. A light enlighten all his column and line until the light touch a wall or the border of the grid
+\item A light cannot enlighten an other light, in other word a light cannot face one another.
 \item It is impossible to put a light on a wall.
 \item A wall can have a number from 0 to 4. This number is indicating how many light must be placed on an adjacent$^*$ box. A wall without numbering is not constraint by this kind of rules.
 \newline Ex: In there is a number N written on the wall there should be N light directly touching his side. If there is no number, there should be any number of light directly touching his side.
 \medskip
 \newline
-$^*$Adjacent : \textit{one side shared so it is not adjacent if there is only a corner shared}
+$^*$Adjacent : \textit{Is called adjacent if there is one side shared so it is not adjacent if there is only a corner shared}
 
 \end{enumerate}
 \end{center}
@@ -89,7 +117,7 @@ We will present how we think to model the game and the Conjunctive Normal Form (
 \end{center}
 
 First, we have one variable by case denoted by an integer X computed as following $(x+y*width)+1$ (x and y starting from 0). Hence X $ \epsilon $ [1,width*height] and it will be easier to write in DIMACS format as propositional variable must be greater or equal to 1 in this format . If X is true then : “There is a light in the case of coordinate (x, y)”. We have one variable by case to know if we could put a light or not in each case.
-We call each horizontal(resp. vertical) interval with free cases without wall, starting from a wall / the border of the grid to a wall / the border of the grid, a sub line(resp. row).
+We call each horizontal(resp. vertical) interval with free cases without wall, starting from a wall/the border of the grid to a wall/the border of the grid, a sub line(resp. row).
 
 \begin{enumerate}
 
@@ -109,9 +137,7 @@ We call each horizontal(resp. vertical) interval with free cases without wall, s
 
 \textit{A grid example with their respetive propositional logic varaible number}
 
-\newpage
-
-Take the first line. To represent the fact that the grid must be fill by light there should be at least one on any sub row or sub line : 
+To represent the fact that the grid must be fill by light there should be at least one on any sub row or sub line : 
 \begin{center}
 $$ \textcolor{red}{\sum_{i \epsilon Sline \cup Srow} i} $$
 \end{center} 
@@ -119,12 +145,12 @@ $$ \textcolor{red}{\sum_{i \epsilon Sline \cup Srow} i} $$
 	\medskip
 	\newline
 
-To represent the fact that a light could not enlighten. There should be no more than one light on any sub row/line : 
+To represent the fact that a light could not enlighten one another. There should not be more than one light on any sub row/line : 
 \begin{center}
 \textcolor{blue}{$ (\neg1 \lor \neg2) \land (\neg1 \lor \neg 3) \land (\neg 1\lor \neg 4) \land (\neg1\lor \neg5) \land (\neg1 \lor \neg 6) \land (\neg 2 \lor \neg 3) \land (\neg2 \lor \neg 4) \land (\neg 2 \lor \neg5) \newline \land (\neg2 \lor \neg6) \land (\neg3 \lor \neg4) \land (\neg3 \lor \neg5) \land (\neg3 \lor \neg6)  \land (\neg 4 \lor \neg 5) \land (\neg 4 \lor \neg 6)\land(\neg5 \lor \neg6)$}
 \end{center} 
 
-Modelling this example we distinguish two parts, the red one that assure that there will be one light on the sub line or the sub row and the blue one that prevent to have two light on a sub line. To have the general formula (in Boolean algebra) we have to exclude two by two each pair and to have big clause with all the elements of $ sub line \cup sub row $. 
+Modelling this example we distinguish two parts, the red one that assure that there will be one light on the sub line or the sub row and the blue one that prevent to have two or more light on a same sub line/row. To have the general formula (in Boolean algebra) we have to exclude two by two each pair and to have big clause with all the elements of $ sub line \cup sub row $. 
 
 $$ \textcolor{blue}{\prod_{ (i,j) \epsilon Sline \cup Srow} ( \bar{i} + \bar{j} )} * \textcolor{red}{\sum_{i \epsilon Sline \cup Srow} i}$$
 
@@ -133,7 +159,7 @@ $$ \textcolor{blue}{\prod_{ (i,j) \epsilon Sline \cup Srow} ( \bar{i} + \bar{j} 
 	\newline
 
 
- The most obvious rule to model is the rule n°3 . If there is a wall empty or not on the case X we had the clause $\neg X$ to our final CNF. (or $\bar{X}$). \newline
+ The most obvious rule to model is the rule n°3 . If there is a wall of any nature on the case X we had the clause $\neg X$ to our final CNF. (or $\bar{X}$). \newline
 Now, it last to model the walls with number and using some exclusions formulas.
 
 	\item \underline{Rule n°4 :}
@@ -141,7 +167,7 @@ Now, it last to model the walls with number and using some exclusions formulas.
 	\newline
 
 
-\textit{As explain before, we will simply call the top, left, right and bottom respectively 2,4,6 and 8.In a more complex grid top, left, right and bottom will respectively be calculated as following $N-width$, $N-1$, $N+1$ and $N+width$.  We consider this sub case as only neighbourhood box matter and it will simplify the formula. }
+\textit{We will simply call the top, left, right and bottom respectively 2,4,6 and 8.In a more complex grid top, left, right and bottom will respectively be calculated as following $N-width$, $N-1$, $N+1$ and $N+width$.  We consider this sub case as only neighbourhood box matter and it will simplify the formula. }
 
 \begin{center}
 	\begin{tabular}{|m{0.05\textwidth}|m{0.05\textwidth}|m{0.05\textwidth}|}
@@ -158,9 +184,9 @@ Now, it last to model the walls with number and using some exclusions formulas.
       \end{tabular}
 \end{center}
 
-In this context we have 5 cases (but it’s like we have only 3) and their formulas.
+In this context we have 5 cases (but it’s like we have only 3 as some looks the same) and their formulas.
 \begin{enumerate}
-\item For N = 0 :  \quad $ \neg2 \land \neg4 \land \neg6 \land \neg8 $ 
+\item For N = 0 :  \quad $ \textcolor{blue}{\neg2 \land \neg4 \land \neg6 \land \neg8} $ 
  which is a CNF with each clause containing one variable.
 \newline
 \item Symmetrically, for N = 4 : \quad $ 2 \land 4 \land 6 \land 8 $
@@ -171,8 +197,8 @@ $\textcolor{ForestGreen}{( 1 \lor \neg 2 \lor \neg 3 \lor \neg 4 ) \land  ( \neg
 $\textcolor{red}{( \neg 1 \lor \neg 2 \lor 3 \lor 4) \land ( \neg 1 \lor 2 \lor \neg 3 \lor 4 ) \land ( \neg 1 \lor 2 \lor 3 \lor \neg 4 ) \land ( 1 \lor \neg 2 \lor \neg 3 \lor 4 ) \land ( 1 \lor \neg 2 \lor 3 \lor \neg 4 ) \land} $ \newline $\textcolor{red}{ ( 1 \lor 2 \lor \neg 3 \lor \neg 4 )} $
 \end{center}
 
-On the one hand the black assure at least one is true. On the other hand, the blue parts assure that there is not 4 light adjacent to the case. Green is killing the model with three light and red the one with 2 light.
-\item For N=3,  only the green part is inverted and this give :\newline
+On the one hand the black assure that at least one is true. On the other hand, the blue parts assure that there is not 4 light adjacent to the case. Green is killing the model with 3 light and red the one with 2 light. The model of this part is when 2 variable are true and 2 are false.
+\item For N=3,  only the green part is inverted to kill model with one light instead of the one with 3 and this give :\newline
 \begin{center}
 $ ( 1 \lor 2 \lor 3 \lor 4) \land \textcolor{blue}{( \neg 1 \lor \neg 2 \lor \neg 3 \lor \neg 4)}  \land $ \newline
 $\textcolor{OliveGreen}{( \neg 1 \lor 2 \lor 3 \lor 4 ) \land  ( 1 \lor \neg 2 \lor 3 \lor 4 ) \land ( 1 \lor 2 \lor \neg 3 \lor 4 ) \land ( 1 \lor 2 \lor 3 \lor \neg 4 )} \land $ \newline
@@ -186,18 +212,15 @@ $\textcolor{OliveGreen}{( \neg 1 \lor 2 \lor 3 \lor 4 ) \land  ( 1 \lor \neg 2 \
 \end{enumerate}
 \end{enumerate}
 
-In the case where there is less than 4 adjacent boxes, we consider the boxes outside the grid as a wall (by Rule 3 the variable associated to is false). As explain before, we do it during the construction of the CNF by the algorithm. We don't want to compute value for case outside of the grid which implies to consider a grid of (width + 2) * (height +2) and consider the border boxes as wall. It's more complex for each grid given to the algorithm but it still the solution for less algorithm computations and more sat solver one. The problem is why consider a more complicated grid instead of getting rid of this problem during the building of the CNF. For example, if (x,y+1) ( R(i) ) and $ y+1 > width $, we consider the same clause without the R(i) as if R(i) is false (a wall), we can just forget it as $ X \lor \perp \equiv X $. We just don't add a variable if it's outside the grid.
+In the case where there is less than 4 adjacent boxes, we consider the boxes outside the grid as a wall (by Rule 3 the variable associated to is false). We do it during the construction of the CNF by the algorithm. We don't want to compute value for case outside of the grid which implies to consider a grid of $(size+2)^2$ and consider the border boxes as wall. It's more complex for each grid given to the algorithm but it still the solution for less algorithm computations and more sat solver one. The problem is why consider a more complicated grid instead of getting rid of this problem during the building of the CNF. For example, if (x,y+1)/R(i) and $ y+1 > width $, we consider the same clause without the R(i) as if R(i) is false (a wall), we can just forget it as $ X \lor \perp \equiv X $. We just don't add a variable if it's outside the grid.
 
 \medskip
 
-If there is a numbered wall with not enough adjacent boxes (too much outside the grid). The program will stop and generate a basic unsolvable CNF ( $\neg i \land i $ ) as it is unsolvable. Again to avoid considering the grid surrounded by wall as it increase quickly the numbers of variables (as it depend on the height and width of the grid ).
-\newline
-
-
+If there is a numbered wall with not enough adjacent boxes (too much outside the grid). The program will stop and generate a basic unsolvable CNF ( $\neg i \land i $ ) as it is unsolvable. Again to avoid considering the grid surrounded by wall as it increase linearly the numbers of variables (as it depend on the height and width of the grid ).
 
 \section{Modeling the problem using first order logic}
 \textit{Small remember the index of box at coordinate (x,y) is calculated as follow : $i = (x+y*width)+1$}
-Relation SubC(i, j) is true if and only if i and j is in the same sub column. Similarly, SubR(i, j) is true if and only if i and j is in the same sub row. Another relation needed is W(i) which is true if and only if case of index i is a Wall (with or without number).  The constraints of the problems are modelled as follows :
+Relation SubC(i, j) is true if and only if i and j are in the same sub column. Similarly, SubR(i, j) is true if and only if i and j are in the same sub row. Another relation needed is W(i) which is true if and only if box of index i is a Wall (with or without number).  The constraints of the problems are modelled as follows :
 \begin{itemize}
 \item Dispose light to enlighten all the free cases of the grid :
 \begin{tabular}{c}
@@ -214,9 +237,9 @@ $ \forall i, \forall j, ( SubR(i, j) \land ( i \neq j) \Rightarrow \neg i \land 
 $ \forall i, ( W(i) \Rightarrow \neg i ) $
 
 \item A wall can have a number from 0 to 4. This number is indicating how many light must be placed on an adjacent box. A wall without numbering is not constraint by this kind of rules : \newline
-We can introduce a new function which map a wall to the number written on it, we call it N. Moreover, functions A(i), B(i), L(i), R(i) correspond respectively to the index of the above box, to the index of the bellow box, to the index of the left box and to the index of the right box. \newline
+We can introduce a new function which map a wall to the number written on it, we call it N. Moreover, functions A(i), B(i), L(i) and R(i) correspond respectively to the index of the above box, to the index of the bellow box, to the index of the left box and to the index of the right box. \newline
 \begin{itemize}
-\item $ \forall i ( W(i) \land N(i)=0 \Rightarrow  \neg A(i) \land \neg B(i) \land \neg L(i) \land \neg R(i) )$  \\
+\item $ \forall i ( W(i) \land N(i)=0 \Rightarrow  \textcolor{blue}{\neg A(i) \land \neg B(i) \land \neg L(i) \land \neg R(i)} )$  \\
 
 
 \item $ \forall i ( W(i) \land N(i)=1 \Rightarrow  ( A(i) \lor B(i) \lor L(i) \lor R(i) ) \land \textcolor{blue}{( \neg A(i) \lor \neg B(i) \lor \neg L(i) \lor \neg R(i))}  \land $ \\
@@ -249,7 +272,9 @@ We solve using minisat and reading the result file. The format of the result is 
 The first line is "SAT" or "UNSAT".
 If it is "UNSAT", there is no solution to the problem and nothing is following.
 If it is "SAT", the following line give the solution. There is a assignation for each variable i separated by space. If it is "i" it means it's true in the model found, if it's "-i" it's means the variable is false in the model found.
-Reading the output file, for each box, we put a lamp on it box if his index i is true in the model and we display the corrected grid.\newline
+Reading the output file, for each box, we put a lamp on it if his index i is true in the model and we display the corrected grid.\newline
+
+\newpage
 
 \textit{Example of output for solvable 3 by 3 grid}
 \begin{verbatim}
@@ -296,8 +321,8 @@ We use the same algorithm describe in the project description (WalkSat : see \re
       	\textit{Number of model found on 1000 executions depending on constants P and N}
 \end{center}
 \end{table}
-\newpage
-To sum up, the tables show that the number of solutions found increase with P (which is the maximum number of flip), it is instinctive that more the algorithm try more he have a chance to find a solution. About N, we can see that a small amount of random can be greater than 0 for P=100.000 but we need to keep in mind that it depend on the sample. In general, when N increase the part of random in choosing the variable to flip increase and the number of model found decrease and the mean number of flip to find a model increase. For $ N \leq 1000 $, the data about P is  not significant because we never find more than 30 model.
+
+To sum up, tables show that the number of solutions found increase with P (which is the maximum number of flip), it is instinctive that more the algorithm try more he have a chance to find a solution. About N, we can see that a small amount of random can be greater than 0 for P=100.000 but we need to keep in mind that it depend on the sample and that it will not always be true. In general, when N increase the part of random in choosing the variable to flip increase and the number of model found decrease and the mean number of flip to find a model increase. For $ N \leq 1000 $, the data about P is  not significant because we never find more than 30 model.
 
 \begin{center}
 Mean number of flip and percentage of success to find a model depending on heuristics ( P=0,1 , N=100.000, 1.000 executions )
@@ -329,31 +354,33 @@ Mean number of flip and percentage of success to find a model depending on heuri
 \end{center}
 \end{table}
 
+\newpage
 
-We test the program with the same problem on the different heuristics but it's 3-Sat reduced before the test of the first table. The 3-SAT reduction increase the number of variable and the number of clause but make the comparison. We see that it's harder for the algorithm to solve the 3-SAT reduced problem and we observe it on the table as for each heuristics choice the average of number of flip needed is higher on the 3-SAT problem. The interest in MOMS heuristics is reduced as there is no "small clause" they are all of size 3 and can explain his bad performance.
+We test the program with the same problem on the different heuristics but it's 3-Sat reduced before the test of the first table. The 3-SAT reduction increase the number of variable and the number of clause but make each clause with the same complexity in terms of number of variables. We see that it's harder for the algorithm to solve the 3-SAT reduced problem and we observe it on the table as for each heuristics choice the average of number of flip needed is higher on the 3-SAT problem. The interest in MOMS heuristics is reduced as there is no "small clause" they are all of size 3 and can explain his bad performance.
 We just observe that the best heuristics is the "Least modified" one when a 3SAT problem is provided. It should come from the fact that it flip the first literal encountered at first flip on a clause because nothing has been modified. The interesting variable are always the second one and it come it really fast after the first flip. Actually, this heuristics work nice with our 3-Sat reduction algorithm. Then more generally heuristics from the best to the worst are JW, MOMS and Score.
 
 \medskip
 
-For the output, we copy the same format as the Minisat output to just replace it and keep the same executable to display the correction.
+For the output, we copy the same format as the Minisat output to just replace it and keep the same executable to display the correction. Instead of "UNSAT" we write "undef" as if the WalkSat don't find a model that doesn't mean that the problem is unsatisfiable.
 
-\newpage
+
 
 \section{Random generation}
 \begin{center}
  \# : Empty wall \qquad 0,1,2,3,4 : Numbered walls  \newline \_ : Free case \qquad   . : Case that should be empty (Cleared after generation)
 \end{center}
-We have a generator of grid coded in C that is working nearly good the two problem is that if we asked a not that high density of a wall it will give an unsolvable grid. In fact, the proportion of solvable grid depend on the density asked. The real problem is that we don't check that each box can be enlighten and we only focus on numbered wall which is the source of a lot of unsolvable grid if not handled. We can have this kind of pattern for example making the grid unsolvable :
+We have a generator of grid coded in C that is working nearly good the two problem is that if we asked a not that high density of a wall it will give an unsolvable grid. In fact, the proportion of solvable grid depend on the density asked. The real problem is that we don't check that each box can be enlighten. We can have this kind of pattern for example making the grid unsolvable :
 \begin{center}
 \#\_ \\
-\_1 \\
+\_1  \\
 \#\_ \\
 \end{center}
 
+As we need, to light the 3 case putting a lamp on them but we can only put one lamp on the 3 free boxes. We only focus on numbered wall which is the source of a lot of unsolvable grid if not handled. Our generator allow that as we can put 1 lamp next to the 1 wall but don't verify that we could light all the grid.
 
-As we need, to light the 3 case putting a lamp on them but we can only put one lamp on the 3 free boxes. Our generator allow that as we can put 1 lamp next to the 1 wall but don't verify that we could light all the grid.
+\newpage
 
-Finally, the grid is not completely solved at the end of the generator only the part with wall it is and just have to remove the light from the grid to make it playable. 
+Finally, the grid is not completely solved at the end of the generator only the part with wall is and just have to remove the light from the grid to make it playable. 
 Here is some grid at different size generated: 
 \newline
 

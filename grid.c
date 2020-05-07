@@ -55,6 +55,10 @@ void detruireCellule (CellulePoint* cel){
     free(cel);
 }
 
+void detruireGrid (Grid *grille){
+    free(grille->tab);
+    free(grille);
+}
 SequencePoint * nouvelleSequencePoint (void){
     SequencePoint * seq = (SequencePoint*)malloc(sizeof(SequencePoint));
     seq->taille=0;

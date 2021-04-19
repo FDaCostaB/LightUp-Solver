@@ -27,7 +27,7 @@ for test)
 
 The format used for the grid file begin with the size S of the grid followed by S line of S character where
 a character represent a box. The character used for the different box are the following :
-\# : Empty wall 0,1,2,3,4 : Numbered walls : Free case
+\# : Empty wall 0,1,2,3,4 : Numbered walls : Free cases
 
 Exemple :
 6

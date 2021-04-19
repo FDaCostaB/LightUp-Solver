@@ -29,7 +29,7 @@ The format used for the grid file begin with the size S of the grid followed by 
 a character represent a box. The character used for the different box are the following :
 \# : Empty wall 0,1,2,3,4 : Numbered walls : Free case
 
-Exemple:
+Exemple :
 6
 \_\_\_0\#\_
 \_\#\_\_\_\_

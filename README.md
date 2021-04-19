@@ -31,9 +31,9 @@ a character represent a box. The character used for the different box are the fo
 
 Exemple:
 6
-___0#_
-_#____
-1___3_
-#___1_
-_3____
-___##_
+\_\_\_0\#\_
+\_\#\_\_\_\_
+1\_\_\_3\_
+#\_\_\_1\_
+\_3\_\_\_\_
+\_\_\_\#\#\_

@@ -30,7 +30,9 @@ a character represent a box. The character used for the different box are the fo
 \# : Empty wall 0,1,2,3,4 : Numbered walls : Free cases
 
 Exemple :
+
 6
+
 \_\_\_0\#\_
 
 \_\#\_\_\_\_

@@ -1,4 +1,4 @@
-# INF432
+# INF432 (01/2020-04/2020)
 A translation of any instances of 'Ligth Up' puzzle problem in Conjunctive normal form. With a random switching SAT-Solver coded in C. https://en.wikipedia.org/wiki/Light_Up_(puzzle)
 
 correctGrid.sh : Correct a grid file with minisat (SAT problem and his 3SAT reduction) and disp

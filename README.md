@@ -32,8 +32,13 @@ a character represent a box. The character used for the different box are the fo
 Exemple :
 6
 \_\_\_0\#\_
+
 \_\#\_\_\_\_
+
 1\_\_\_3\_
+
 #\_\_\_1\_
+
 \_3\_\_\_\_
+
 \_\_\_\#\#\_
